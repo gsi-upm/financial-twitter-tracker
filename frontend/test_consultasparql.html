@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Visualizador</title>
+
+<!-- stylesheets -->
+<link rel="stylesheet" href="css/main.css" type="text/css">
+
+<!-- javascript -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+
+  <script type="text/javascript" src="ajax-solr/core/Core.js"></script>
+  <script type="text/javascript" src="ajax-solr/core/AbstractManager.js"></script>
+  <script type="text/javascript" src="ajax-solr/managers/Manager.jquery.js"></script>
+  <script type="text/javascript" src="ajax-solr/core/Parameter.js"></script>
+  <script type="text/javascript" src="ajax-solr/core/ParameterStore.js"></script>
+  <script type="text/javascript" src="ajax-solr/core/AbstractWidget.js"></script>
+  <script type="text/javascript" src="ajax-solr/helpers/ajaxsolr.theme.js"></script>
+  <script type="text/javascript" src="ajax-solr/core/AbstractFacetWidget.js"></script>
+
+  <script type="text/javascript" src="widgets/TagcloudWidget.js"></script>
+  <script type="text/javascript" src="widgets/PagerWidget.js"></script>
+  <script type="text/javascript" src="widgets/ResultWidget.2.0.js"></script>
+  <script type="text/javascript" src="widgets/CurrentSearchWidget.js"></script>
+
+  <script type='text/javascript' src="js/knockout-2.1.0.js"></script>
+  <script type="text/javascript" src="js/reuters.theme.js"></script>
+
+  <script type="text/javascript" src="js/jquery.livequery.js"></script>
+    <script type="text/javascript" src="jquery-ui-personalized-1.6rc2.min.js"></script>
+
+
+   
+</head>
+
+
+<body>
+
+<header class="page-header">
+<img data-bind="attr:{src: logoPath}" />
+<div id="logo"><a href="" data-bind="text: pageTitle">Visualizador RDF</a> </div>
+
+
+<div>
+	<form class="busqueda">
+		<div id="barrabusqueda"> <input id="query" type="text"></input> <button class="button" data-bind="click: doSearch">Buscar</button> <button class="button">Voy a tener suerte</button></div>
+				
+	</form>
+		
+</div>
+
+<button class="button" id="button_configuracion" data-bind="click: $root.configure">Configuración</button>
+
+</header>
+
+<div id="configuration" >
+</br>
+<h2><p>Configuración</p></h2>
+
+</br>
+<p>Título página:
+<input id="pagetitle" type="text" data-bind="value: pageTitle" ></input> </p>
+<p>Base URL:
+<input id="baseurl" type="text" data-bind="value: baseURL" ></input> </p>
+<p>sgvizlerQuery: 
+<input id="sgvizlerQuery" type="text"></input> </p>
+<button class="button" data-bind="click: $root.addWidget">Añadir TagCloud</button><button class="button" data-bind="click: $root.addSgvizlerWidget">Añadir Gráfico</button>
+</br>
+<button class="button" data-bind="click: $root.doSave">Guardar</button>
+</br>
+</div>
+
+    <div id="columns">
+        <ul id="column1" class="column">
+<!--
+<li class="widget color-red"><div class="widget-head"><h3 id="widget-nombre">Provincias</h3></div><div class="widget-content"><div class="tagcloud" id="province_graph"><div id="sgvzl" data-sgvizler-endpoint="http://localhost:8080/LMF/sparql/select?" data-sgvizler-query="SELECT ?value WHERE {?s <http://www.gsi.dit.upm.es/province> ?value} ORDER BY ?value" data-sgvizler-chart="gPieChart" data-sgvizler-loglevel="0" data-sgvizler-chart-options="is3D=true|title=Number of instances" style="width:300px; height:200px;"></div></div></div></li>
+-->
+
+
+        </ul>
+
+
+        <ul id="column2" class="column">
+            <li class="widget color-green" id="results">
+                <div class="widget-head">
+                    <h3>Resultados</h3>
+                </div>
+                <div class="widget-content">
+
+      <div class = "seleccion_actual">
+      <h2>Selección</h2>
+      <ul id="selection"></ul>
+      </div>
+
+	<div id="loading"><img src="images/ajax-loader.gif"></div>
+
+	<table id="results"></table>  
+      		<div id="result">
+        		<div id="navigation">
+          			<ul id="pager"></ul>
+          			<div id="pager-header"></div>
+        		</div>
+        			<div id="docs"></div>
+      		</div>
+
+		<!-- cierra widget-content -->               
+		 </div>
+            </li>
+
+        </ul>
+        
+        <!-- cerramos las columnas -->
+    </div>
+
+<!-- Empieza main content -->
+<div class="maincontent">
+
+
+
+
+
+
+<!-- Termina maincontent-->
+</div>
+
+<div class="footer">
+Ayuda
+
+
+</div>
+
+<!--<script type='text/javascript' src="js/resultslistviewmodel.js"></script>-->
+
+
+<!-- SIEMPRE LO ÚLTIMO -->
+
+
+<script type='text/javascript' src="js/mvvm.js"></script>
+
+
+<script type="text/javascript" src="inettuts.js"></script>
+
+
+
+</body>
+
+
+</html>
