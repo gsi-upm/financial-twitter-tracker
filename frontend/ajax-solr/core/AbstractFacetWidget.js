@@ -261,8 +261,7 @@ AjaxSolr.AbstractFacetWidget = AjaxSolr.AbstractWidget.extend(
 	 
     var self = this, meth = this.multivalue ? 'add' : 'set';
     return function () {
-		 console.log("CLICK");
-		 actualizaGraficoCircular(value);		 
+		 //console.log("CLICK");
 	  if(!vm.lightmode()){
 			 
 		if (self[meth].call(self, value)) {
@@ -271,7 +270,7 @@ AjaxSolr.AbstractFacetWidget = AjaxSolr.AbstractWidget.extend(
    	}else{
 	// Modo local
 		vm.filterData(self.field,value);
-		console.log("Provincias: " + vm.listArray(self.field));
+		//console.log("Provincias: " + vm.listArray(self.field));
 
 	}
 	
@@ -336,129 +335,4 @@ AjaxSolr.AbstractFacetWidget = AjaxSolr.AbstractWidget.extend(
   fq: function (value, exclude) {
     return (exclude ? '-' : '') + this.field + ':' + AjaxSolr.Parameter.escapeValue(value);
   }
-  
-  
 });
-
-function actualizaGraficoCircular(filtro){
-  $('#vis').empty();	
-
-		var div = d3.select("#vis");
-		div.select("img").remove();
-
-		var vis = div.append("svg")
-			.attr("width", width + padding * 2)
-			.attr("height", height + padding * 2)
-		  .append("g")
-			.attr("transform", "translate(" + [radius + padding, radius + padding] + ")");
-
-
-		var partition = d3.layout.partition()
-			.sort(null)
-			.value(function(d) { return 5.8 - d.depth; });
-
-		var arc = d3.svg.arc()
-			.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-			.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-			.innerRadius(function(d) { return Math.max(0, d.y ? y(d.y) : d.y); })
-			.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
-
-			
-		d3.json("http://localhost/ftt/Visualizador3/script_conversorWheel.php?filter="+filtro, function(json) {
-		  var nodes = partition.nodes({children: json});
-
-		  var path = vis.selectAll("path").data(nodes);
-		  path.enter().append("path")
-			  .attr("id", function(d, i) { return "path-" + i; })
-			  .attr("d", arc)
-			  .attr("fill-rule", "evenodd")
-			  .style("fill", colour)
-			  .on("click", click);
-
-		  var text = vis.selectAll("text").data(nodes);
-		  
-		  var textEnter = text.enter().append("text")
-			  .style("fill-opacity", 1)
-			  .style("fill", function(d) {
-				return brightness(d3.rgb(colour(d))) < 125 ? "#eee" : "#000";
-			  })
-			  .attr("text-anchor", function(d) {
-				return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
-			  })
-			  .attr("dy", ".2em")
-			  .attr("transform", function(d) {
-				var multiline = (d.name || "").split(" ").length > 1,
-					angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-					rotate = angle + (multiline ? -.5 : 0);
-				return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
-			  })
-			  .on("click", click);
-			  
-			  
-			 textEnter.append("tspan")
-			  .attr("x", 0)
-			  .text(function(d) { 
-					if (d.depth == 3)
-						//return d.depth ? d.name.split(" ")[0] : ""; 
-						return "";
-					else 
-						return d.depth ? d.name.split(" ")[0] : "";
-				});	
-			
-			
-			 
-			/*textEnter.append("tspan")
-			  .attr("x", 0)
-			  .attr("dy", "1em")
-			  .text(function(d) { return d.depth ? d.name.split(" ")[1] || "" : ""; });*/
-			
-		  function click(d) {
-			path.transition()
-			  .duration(duration)
-			  .attrTween("d", arcTween(d));
-
-			// Somewhat of a hack as we rely on arcTween updating the scales.
-			text.style("visibility", function(e) {
-				  return isParentOf(d, e) ? null : d3.select(this).style("visibility");
-				})
-			  .transition()
-				.duration(duration)
-				.attrTween("text-anchor", function(d) {
-				  return function() {
-					return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
-				  };
-				})
-				.attrTween("transform", function(d) {
-				  var multiline = (d.name || "").split(" ").length > 1;
-				  return function() {
-					var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-						rotate = angle + (multiline ? -.5 : 0);
-					return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
-				  };
-				})
-				.style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; })
-				.each("end", function(e) {
-				  d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
-				});
-		  }
-		  
-		  
-		});
-		
-		$('#vis').fadeIn('fast');	
-		$('#barras').empty();	
-		$.ajax({
-			url: 'http://localhost/ftt/Visualizador3/script_conversorBarras.php?filter='+filtro,
-			type: "GET",
-			dataType: "json",
-			async:false,
-			success: function (datos) {
-				 console.log("datosss barras OK");
-				 pintaGrafico(datos);
-			},
-			error: function () {
-				 console.log("datosss barras NOK");
-			}
-		});
-		$('#barras').fadeIn('fast');	
-	}

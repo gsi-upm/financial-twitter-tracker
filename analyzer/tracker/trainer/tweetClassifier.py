@@ -18,12 +18,13 @@ import dictionary
 sys.path.append('../dict/sentiwordnet')
 sys.path.append('../dict')
 from sentiwordnet import SentiWordNetCorpusReader, SentiSynset
+from nltk.corpus import wordnet as wn
 import nltk
 
 
 class RawClassifier(object):
     statsData = {}
-    dataDir = "/home/toni/git/financial-twitter-sentiment-analyzer/tracker/data"
+    dataDir = "/home/toni/git/financial-twitter-tracker/analyzer/tracker/data"
     limit = {}
     skip = 0
     p2_f_limit = 0.75
@@ -118,12 +119,20 @@ class RawClassifier(object):
             return 1
 
     def checkWithSentiwordnet(self, text):
+        count = 0
         tokens = nltk.word_tokenize(text)
         for token in tokens: 
             synsets = self.swn.senti_synsets(token)
             if len(synsets) > 0: 
-                synset = self.swn.senti_synset(str(synsets[0]))
-                print synset
+                # TODO no tiene por que ser este lemma. Comprobar la categoria 
+                lemma = synsets[0] 
+                count = count + lemma.pos_score - lemma.neg_score
+        #print count, " points for text :", text
+        if count > 0:
+            return 'p'
+        if count < 0:
+            return 'n'
+        return 'x'
     
        
     def checkKeyWords(self,text):
@@ -174,7 +183,8 @@ class RawClassifier(object):
                     print 'rt'
                     continue
 
-                mood = self.checkKeyWords(text)
+                mood = self.checkWithSentiwordnet(text)
+                #mood = self.checkKeyWords(text)
                 if mood == 'x':
                     continue
 
@@ -198,7 +208,7 @@ class RawClassifier(object):
                     print "classified %d tweets" % (self.count)
                 self.count += 1
 
-                self.checkWithSentiwordnet(text)
+                mood = self.checkWithSentiwordnet(text)
 
                 self.training_data_p1.addRow(text, mood, lang[0])
 

@@ -24,7 +24,7 @@ class MoodDetectTrainData(list):
             lang = 'other'
         
         data_sub_set = self.tk.tokenize(text,lang)
-        print "MoodDetectTrainData data_sub_set=", data_sub_set 
+        #print "MoodDetectTrainData data_sub_set=", data_sub_set 
         data_sub_set['x_lang'] = lang
         
         self.append((data_sub_set,label))
