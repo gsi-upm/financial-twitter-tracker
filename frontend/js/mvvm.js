@@ -76,7 +76,7 @@ function InitViewModel() {
 	self.filteredCategory = ko.observableArray();
 	
 	/** Extra plugins */
-	self.currentTweets = ko.observableArray([]);
+	self.currentTweets = ko.observableArray([]); // No se usa
 	self.mapLat = ko.observable(configuration.mapWidget.latitude);
 	self.mapLong = ko.observable(configuration.mapWidget.longitude);
 	self.sgvizlerQuery = ko.observable("SELECT ?o WHERE { ?s <http://www.w3.org/2006/vcard/ns#locality> ?o}");
@@ -84,10 +84,13 @@ function InitViewModel() {
 	/** TagCloudWidgets related */
 	self.widgetContent = ko.observableArray();
 	self.activeWidgets = ko.mapping.fromJS(self.testData);
-	
+
+
 	
 	/** Returns all data given a field (i.e type: province returns [facet: "Madrid", count: "5"]...)  */
-	ko.utils.getDataColumns = function(type) {    
+	ko.utils.getDataColumns = function(type) {  
+		console.log("RESPONSE:");  
+		console.log(Manager.response);
 		/** Local mode */
 		if(self.lightmode()){
 			var response = [];
@@ -141,7 +144,7 @@ function InitViewModel() {
 	
 	/** This function populate all tagcloud widgets content */
 	function updateWidgets(){
-		console.log("updateWidgets()")
+		console.log("updatewidgets");
 		$.each(self.activeWidgets(), function(index, item) {
 			if(item.type()=="tagcloud"){
 				self.widgetContent(ko.utils.getDataColumns(item.field()));
@@ -315,6 +318,8 @@ function InitViewModel() {
 		
 		return ko.utils.arrayGetDistinctValues(provinces).sort();			
 	};
+
+
 	
 	/** Shows popup to edit fields that are shown in results widget */
 	self.editResultsLayout = function (){
@@ -406,23 +411,21 @@ function InitViewModel() {
 	},self);	
 	
 	/** Final data visualized in results widget (after text filter through input if exists) */
-	self.filteredData = ko.computed(function() { 
-				updateWheel("js/wheel.json");
+	self.filteredData = ko.computed(function() {  
 
-		console.log("computing filteredData"); 
 		var data = self.filteredCategory();
+		console.log(data)
 		
 		/** Search box filter */
 		var filter = self.filter();
 		var filterType = "name";
-		console.log("FILTER ES: " + filter);
+		////console.log("FILTER ES: " + filterArray);
 		if(!self.sparql()){
 			if(!filter){
 				return data;  
 				}else if(self.lightmode()){
 				return ko.utils.arrayFilter(data, function(item) {
 					if(item[filterType]!=undefined) {
-						////console.log(item[filterType]().toString());
 						return ko.utils.stringStartsWith(item[filterType]().toString(), filter);
 					}
 				});
@@ -437,29 +440,75 @@ function InitViewModel() {
 	
 	/** If results widget data changes, we must update the graphics on top */
 	self.filteredData.subscribe(function (newValue) {
+
+		console.log("FILTERED_DATA: " +  ko.toJSON(newValue))
 		
 		$(".graphics").empty();
 		
 		$.each(self.activeWidgets(), function(index, item) {
+			console.log("ITEM:" + ko.toJSON(item));
 			if(item.type()=="tagcloud"){
 				
 				$(".graphics").append("<div id='" + item.id()+ "'></div>");
 				
 				var t = ko.utils.getDataColumns(item.field());
-				
+				console.log("T:" + ko.toJSON(t))
 				var temp = [['Header',0]];
 				for(var i=0, l = t.length; i<l; i++){
 					temp.push([t[i].facet,t[i].count]); 
 				}
-				// graficos tarta
 				var datos =  ko.toJS(temp);
 				var data = google.visualization.arrayToDataTable(temp);
 				new google.visualization.PieChart(document.getElementById(item.id())).draw(data, {title:item.title()});	
 			}
 		});
-		
+
+		var array = new Array();
+		$.each(self.filteredData(), function(index, item) {
+			var one = new Object();
+			one["name"] = new String(item.name());
+			var two = new Object();
+			two["name"] = new String(item.polarity_type()[0]).substring(24);
+			var three = new Object();
+			three["name"] = new String(item.text());
+			three["colour"] = "#cccccc";
+			var arrayThree = new Array();
+			arrayThree.push(three);
+			two["children"] = arrayThree;
+			var arrayTwo = new Array();
+			arrayTwo.push(two);
+			one["children"] = arrayTwo;
+			array.push(one);
+		});
+		updateWheel(JSON.stringify(array));
+
+
+
+	/*foreach(array_keys($salida) as $company){
+	$a_comp = array();
+	foreach(array_keys($salida[$company]) as $polarity){
+		$a_pol = array();
+		foreach($salida[$company][$polarity] as $tw){
+			$a_pol[]=array('name'=>$tw,'colour'=>$colores[$indice_colores]);
+		}
+		$a_comp[] = array('name'=>$polarity,'children'=>$a_pol);
+	}
+	$datos[] = array('name'=>$company,'children'=>$a_comp);
+	$indice_colores++;
+	if ($indice_colores >= sizeof($colores))$indice_colores=0; 
+	}*/
+
+		//updateWheel("../script_conversorWheel.php");
+
+		// El widget necesita todos los datos inicialmente, asi que hacerlo distinto: 
+		// cuando filtres en knockout, clickear en el widget, y viceversa
+		//wheelClickWithName(filter)
+
 	});
-	
+
+
+
+
 	/** Autocomplete in search box (TO DO)*/
 	self.autoComplete = ko.computed(function() {
 		if(!isBlank(self.autocomplete_fieldname())){
@@ -839,7 +888,6 @@ function mostrarWidgets(){
 		
 		if(widgets[i].type()=="tagcloud"){
 			fields.push(widgets[i].field());
-			//console.log("FIELD: " + widgets[i].field())
 		}
 	}
 	
@@ -929,14 +977,13 @@ function updateSolrFilter() {
 				if(i==0){
 					tempString += catParent + ':"' + item2.name() + '"';
 					i++;
-					}else{
+				}else{
 					tempString += ' OR ' + catParent + ':"' + item2.name() + '"';
 				}
 			}
 		});
 		Manager.store.addByValue('fq', tempString);
 	});
-	
 	Manager.doRequest();
 }
 
@@ -1128,5 +1175,4 @@ ko.bindingHandlers.visibleAndSelect = {
 }
 
 var vm = new InitViewModel();
-
 

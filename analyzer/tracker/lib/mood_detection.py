@@ -67,7 +67,7 @@ class MoodClasses(object):
 
 class MoodDetect(object):
     
-    dumping = 0.65
+    dumping = 0.6
     
     tk = WordGramTokenizer()
     

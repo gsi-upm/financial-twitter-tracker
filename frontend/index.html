@@ -4,7 +4,7 @@
 	<!-- head starts -->
 	<head>
 		<meta charset="utf-8" />
-		<title>SEFARAD</title>
+		<title>Financial Twitter Tracker</title>
 		
 		<!-- global stylesheets -->
 		<link rel="stylesheet" href="css/main.css" type="text/css">
@@ -60,16 +60,13 @@
 		<script src="js/ext/carrousel.js"></script>
 		<script src="js/ext/jquery.joyride-2.0.2.js"></script>
 		
+		<!-- d3 -->		
+		<link rel="stylesheet" type="text/css" href="css/wheel.css">
+		
 		<!-- external -->
 		<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
 		<link rel="stylesheet" type="text/css" href="http://knockoutjs.com/examples/resources/twitterExample.css">
 		<script type='text/javascript' src="js/twitterApi.js"></script>
-
-		<!-- Wheel -->
-		<script type="text/javascript" charset="UTF-8" src="js/d3.v2.min.js"></script>
-		<script type="text/javascript" charset="UTF-8" src="js/wheel.js"></script>
-		<!--<link rel="stylesheet" type="text/css" href="css/wheel.css">-->
-
 		
 		<script type="text/javascript">
 			// Load the Visualization API and the piechart package.
@@ -105,8 +102,7 @@
 	
 	<!-- body starts -->
 	<body>
-
-
+		
 		<!-- Loading animation -->
 		<div id="dvLoading"></div>
 		
@@ -115,9 +111,19 @@
 			
 			<header class="toppage">
 				<!-- Top bar -->
+				
 				<img class="imagen" id="save_img" src="img/save.png" data-bind="click: $root.doSave"/>
 				<img class="imagen" id="configuration_img" src="img/settings.png" data-bind="click: $root.showConfiguration"/>
 				<img class="imagen" id="help_img" src="img/help.png" data-bind="click: $root.showHelp"/>
+				
+				<!-- search bar -->
+				<ul id="search"><input class="ui-autocomplete-input" id="query" size="35" placeholder="Introduce una entidad..." data-bind="value: filter" /></ul>
+				
+				<!--<ul id="search"><input type="text" id="query" name="query" placeholder="Tu consulta" data-bind="visible: !lightmode()"></input></ul>-->
+				
+				<div align="center">
+					<img id="logoimage" data-bind="if: logoPath, attr: {src: logoPath}" />
+				</div>
 				
 				<br>
 				
@@ -179,7 +185,7 @@
 			
 			<!-- Knockout Popup (new widget manager) -->
 			<div class="popup" data-bind="kendoWindow: { isOpen: openNewWidgetManager, title: 'Añade un Widget', visible: false }">
-
+				
 				<div class="carousel">
 					<div class="app-carousel-nav-container">
 						<div class="app-carousel-nav clearfix">
@@ -254,23 +260,19 @@
 								</li>
 							</ul>
 						</div>
-					</div>
+					</div>-->
 				</div>
 			</div>
 			
 			<!-- below top bar -->
 			<div class="page-header">
-				<img id="logoimage" data-bind="if: logoPath, attr: {src: logoPath}" />
-				<div id="logotext"><a href="" data-bind="text: pageTitle">Visualizador RDF</a></div>
+				<!-- <img id="logoimage" data-bind="if: logoPath, attr: {src: logoPath}" /> -->
+				<div id="logotext"><a href="" data-bind="text: pageTitle">Financial Twitter Tracker</a></div>
 				<div class="search">
 					
 					<!--<form class="busqueda">
 					<ul id="localsearch"><input type="text" placeholder="Tu consulta local" data-bind="visible: lightmode, value:filter, valueUpdate: 'afterkeydown', attr: { filterType: name }"></input></ul>-->
 					
-					<!-- search bar -->
-					<ul id="search"><input class="ui-autocomplete-input" id="query" size="80" placeholder="Introduce tu búsqueda aquí" data-bind="value: filter" /></ul>
-					
-					<!--<ul id="search"><input type="text" id="query" name="query" placeholder="Tu consulta" data-bind="visible: !lightmode()"></input></ul>-->
 					
 					
 					<!--</form>-->
@@ -301,9 +303,9 @@
 					<ul id="column0tab0" class="column">
 						
 						<!-- Add new widget section (left column) -->
-						<div class="addNewWidget">
+						<!-- <div class="addNewWidget">
 							<h1 data-bind="click: $root.openNewWidgetManagerMethod">Añade un widget</h1>
-						</div>		
+						</div>		 -->
 						
 						<!-- all widgets -->
 						<!-- more effects: http://jqueryui.com/effect/#easing -->
@@ -353,138 +355,176 @@
 							<p>Longitud: <input data-bind="value: mapLong" /></p>
 						</div>
 					</li>
-
-							<!-- results widget -->
-		<li class="ui-widget" id="" data-bind = "visible: showResultsWidget">
-			<div class="ui-widget-header">
-				<div style="float:left">
-					<div class="ui-icon" data-bind="css: {'ui-icon-arrow-1-s': $root.resultsWidget.wcollapsed(), 'ui-icon-arrow-1-n': !$root.resultsWidget.wcollapsed()}, click: function() { var state = $root.resultsWidget.wcollapsed(); $root.resultsWidget.wcollapsed(!state) }">
+					
+					<!-- results widget -->
+					<li class="ui-widget" id="" data-bind = "visible: showResultsWidget">
+						<div class="ui-widget-header">
+							<div style="float:left">
+								<div class="ui-icon" data-bind="css: {'ui-icon-arrow-1-s': $root.resultsWidget.wcollapsed(), 'ui-icon-arrow-1-n': !$root.resultsWidget.wcollapsed()}, click: function() { var state = $root.resultsWidget.wcollapsed(); $root.resultsWidget.wcollapsed(!state) }">
+								</div>
+							</div>
+							
+							<h3 data-bind="text: $root.lang().results"></h3>
+							<div style="float:right">
+								
+								<div id="editResultsLayout" class="ui-icon ui-icon-gear" data-bind="click: $root.editResultsLayout"></div>
+							</div>
+							
+						</div>
+						
+						<div class="ui-widget-content" data-bind = "visible: !$root.resultsWidget.wcollapsed()">
+							<div class="resultswidget-header" data-bind = "visible: !sparql()">
+								<div data-bind="visible: !lightmode()"><div id="pager-header" ></div><ul id="pager"></ul></div>
+								<br>
+								<!--
+									<div class="seleccion_actual"><h2>Filtros activos</h2>
+									
+									<div data-bind="foreach: activeWidgets">
+								<!-- ko if: type()=="tagcloud" -->
+								<!--
+									<span data-bind="foreach: values" >
+									<div data-bind="visible: state()" style="display: inline;">
+									<a href="#" data-bind="text: name, click: $root.tagCloudSelection.bind($data, $parentContext.$index(), id, name())"></a>
+									</div>
+									</span>
+								<!-- /ko -->
+								<!--
+									</div>
+									</div>
+								-->			
+								
+								<!--<div class="graphics" ></div>-->
+								<!--<select data-bind="options: dataColumns, value: sortBy, optionsCaption: 'Ordenar por...', enable: viewData().length > 0"></select>-->
+								
+								
+								<br>
+								
+							</div>
+							
+							
+							
+							<div data-bind="foreach: filteredData">
+								
+								<div class="resultado">
+									
+									<!-- ko ifnot: $root.sparql() -->
+									
+									<img id="logoimage" data-bind="attr: {src: $data[$parent.resultsLayout()[3].Value()]}" />
+									
+									<h2 data-bind="text: $data[$parent.resultsLayout()[0].Value()]"></h2>
+									<h4 data-bind="text: $data[$parent.resultsLayout()[1].Value()]"></h4>
+									<p data-bind="text: $data[$parent.resultsLayout()[2].Value()]"></p>
+									<!-- /ko -->
+									
+									<!-- ko if: $root.sparql() -->
+									<!-- ko if: $data.hasOwnProperty([$parent.resultsLayout()[3].Value()]) -->
+									<img id="logoimage" data-bind="attr: {src: $data[$parent.resultsLayout()[3].Value()].value}" />	
+									<!-- /ko -->					
+									<!-- ko if: $data.hasOwnProperty([$parent.resultsLayout()[0].Value()]) -->
+									<h2 data-bind="text: $data[$parent.resultsLayout()[0].Value()].value"></h2>
+									<!-- /ko -->
+									<!-- ko if: $data.hasOwnProperty([$parent.resultsLayout()[1].Value()]) -->
+									<h4 data-bind="text: $data[$parent.resultsLayout()[1].Value()].value"></h4>
+									<!-- /ko -->	
+								<!-- ko if: $data.hasOwnProperty([$parent.resultsLayout()[2].Value()]) -->
+								<p data-bind="text: $data[$parent.resultsLayout()[2].Value()].value"></p>
+								<!-- /ko -->		
+								
+								<!-- /ko -->	
+								
+								
+							</div>
+							
+						</div>
+						
+						<p data-bind="visible: filteredData().length == 0">Por favor, realiza tu consulta</p>
+						
+						
+						<!--se cierra widget-content-->
 					</div>
-				</div>
-				
-				<h3 data-bind="text: $root.lang().results"></h3>
-				<div style="float:right">
 					
-					<div id="editResultsLayout" class="ui-icon ui-icon-gear" data-bind="click: $root.editResultsLayout"></div>
-				</div>
-				
-			</div>
-			<div class="ui-widget-content" data-bind = "visible: !$root.resultsWidget.wcollapsed()">
-				<div class="resultswidget-header" data-bind = "visible: !sparql()">
-					<div data-bind="visible: !lightmode()"><div id="pager-header" ></div><ul id="pager"></ul></div>
-					<br>
-					<!--
-						<div class="seleccion_actual"><h2>Filtros activos</h2>
-						
-						<div data-bind="foreach: activeWidgets">
-					<!-- ko if: type()=="tagcloud" -->
-					<!--
-						<span data-bind="foreach: values" >
-						<div data-bind="visible: state()" style="display: inline;">
-						<a href="#" data-bind="text: name, click: $root.tagCloudSelection.bind($data, $parentContext.$index(), id, name())"></a>
-						</div>
-						</span>
-					<!-- /ko -->
-					<!--
-						</div>
-						</div>
-					-->			
+				</li>
 					
-					<div class="graphics" ></div>
-					<!--<select data-bind="options: dataColumns, value: sortBy, optionsCaption: 'Ordenar por...', enable: viewData().length > 0"></select>-->
-					
-					
-					<br>
-					
-				</div>
-				
-				
-				
-				<div data-bind="foreach: filteredData">
-					
-					<div class="resultado">
-						
-						<!-- ko ifnot: $root.sparql() -->
-						
-						<img id="logoimage" data-bind="attr: {src: $data[$parent.resultsLayout()[3].Value()]}" />
-						
-						<h2 data-bind="text: $data[$parent.resultsLayout()[0].Value()]"></h2>
-						<h4 data-bind="text: $data[$parent.resultsLayout()[1].Value()]"></h4>
-						<p data-bind="text: $data[$parent.resultsLayout()[2].Value()]"></p>
-						<!-- /ko -->
-						
-						<!-- ko if: $root.sparql() -->
-						<!-- ko if: $data.hasOwnProperty([$parent.resultsLayout()[3].Value()]) -->
-						<img id="logoimage" data-bind="attr: {src: $data[$parent.resultsLayout()[3].Value()].value}" />	
-						<!-- /ko -->					
-						<!-- ko if: $data.hasOwnProperty([$parent.resultsLayout()[0].Value()]) -->
-						<h2 data-bind="text: $data[$parent.resultsLayout()[0].Value()].value"></h2>
-						<!-- /ko -->
-						<!-- ko if: $data.hasOwnProperty([$parent.resultsLayout()[1].Value()]) -->
-						<h4 data-bind="text: $data[$parent.resultsLayout()[1].Value()].value"></h4>
-						<!-- /ko -->	
-					<!-- ko if: $data.hasOwnProperty([$parent.resultsLayout()[2].Value()]) -->
-					<p data-bind="text: $data[$parent.resultsLayout()[2].Value()].value"></p>
-					<!-- /ko -->		
-					
-					<!-- /ko -->	
-					
-					
-				</div>
-				
-			</div>
-			
-			<p data-bind="visible: filteredData().length == 0">Por favor, realiza tu consulta</p>
-			
-			
-			<!--se cierra widget-content-->
-		</div>
-		
-	</li>
-	
-
-					
-	<!-- column 0 tab 0 end -->
+					<!-- column 0 tab 0 end -->
 	</ul>
 	
 	
 	
 	<ul id="column1tab0" class="column">
-
-		<li class="ui-widget" id="" data-bind = "visible: showResultsWidget">
-			<div class="ui-widget-header">
-				<div style="float:left">
-					<div class="ui-icon" data-bind="css: {'ui-icon-arrow-1-s': $root.resultsWidget.wcollapsed(), 'ui-icon-arrow-1-n': !$root.resultsWidget.wcollapsed()}, click: function() { var state = $root.resultsWidget.wcollapsed(); $root.resultsWidget.wcollapsed(!state) }">
+		<!-- results widget -->
+					<li class="ui-widget" id="" data-bind = "visible: showResultsWidget">
+						<div class="ui-widget-header">
+							<div style="float:left">
+								<div class="ui-icon" data-bind="css: {'ui-icon-arrow-1-s': $root.resultsWidget.wcollapsed(), 'ui-icon-arrow-1-n': !$root.resultsWidget.wcollapsed()}, click: function() { var state = $root.resultsWidget.wcollapsed(); $root.resultsWidget.wcollapsed(!state) }">
+								</div>
+							</div>
+							
+							<h3 data-bind="text: $root.lang().results"></h3>
+							<div style="float:right">
+								
+								<div id="editResultsLayout" class="ui-icon ui-icon-gear" data-bind="click: $root.editResultsLayout"></div>
+							</div>
+							
+						</div>
+						<div class="ui-widget-content" data-bind = "visible: !$root.resultsWidget.wcollapsed()">
+							<div class="resultswidget-header" data-bind = "visible: !sparql()">
+								<div data-bind="visible: !lightmode()"><div id="pager-header" ></div><ul id="pager"></ul></div>
+								<br>
+								<!--
+									<div class="seleccion_actual"><h2>Filtros activos</h2>
+									
+									<div data-bind="foreach: activeWidgets">
+								<!-- ko if: type()=="tagcloud" -->
+								<!--
+									<span data-bind="foreach: values" >
+									<div data-bind="visible: state()" style="display: inline;">
+									<a href="#" data-bind="text: name, click: $root.tagCloudSelection.bind($data, $parentContext.$index(), id, name())"></a>
+									</div>
+									</span>
+								<!-- /ko -->
+								<!--
+									</div>
+									</div>
+								-->			
+								
+								<div class="graphics" ></div>
+								<!--<select data-bind="options: dataColumns, value: sortBy, optionsCaption: 'Ordenar por...', enable: viewData().length > 0"></select>-->
+								
+								
+								<br>
+								
+							</div>
+							
+							
+							
+						
+						
+						<p data-bind="visible: filteredData().length == 0">Por favor, realiza tu consulta</p>
+						
+						
+						<!--se cierra widget-content-->
 					</div>
-				</div>
-				
-				<h3 data-bind="text: $root.lang().results"></h3>
-				<div style="float:right">
 					
-					<div id="editResultsLayout" class="ui-icon ui-icon-gear" data-bind="click: $root.editResultsLayout"></div>
-				</div>
+				</li>
 				
-			</div>
-			<div class="ui-widget-content" data-bind = "visible: !$root.resultsWidget.wcollapsed()">
-				<div class="resultswidget-header" data-bind = "visible: !sparql()">
+				<li class="ui-widget">
+						<div class="ui-widget-header ui-corner-top">
+							<h3 id="widget-nombre">Tweet Donut</h3>
+						</div>
+						
+						<div class="ui-widget-content">
+							<div align="center" id="vis"></div> 
+							<script src="js/ext/d3.v2.min.js"></script>
+							<script src="js/wheel.js"></script>
+							<div id='tooltip'>Contenido del Tooltip 1</div>
+						</div>
+					</li>
+		
+	
+	
+</ul>
 
-					<!-- TEST -->
-					<div align="center" id="vis"></div> 
-					<!--<script type="text/javascript">
-						updateWheel("js/wheel.json");
-					</script>-->
-				</div>
-
-
-				<p data-bind="visible: filteredData().length == 0">Por favor, realiza tu consulta</p>
-
-
-				<!--se cierra widget-content-->
-			</div>
-		</li>
-	</ul>
-
-	<!-- cerramos las columnas -->
+<!-- cerramos las columnas -->
 </div>
 
 
@@ -498,9 +538,12 @@
 <!-- footer (only visible in main page) -->
 <div class="footer" data-bind="visible: page() == 0">
 	
-	<h2>Proyecto SEFARAD</h2>
-	<a href="http://gsi.dit.upm.es/" target="_blank">
-	<div class="gsiLogo" title="Grupo de Sistemas Inteligentes" ></div>
+	
+	<a href="http://gsi.dit.upm.es/" target="_blank">	
+		<div class="gsiLogo" title="Grupo de Sistemas Inteligentes" ></div>	
+	</a>
+	<a href="https://www.planavanza.es" target="_blank">	
+		<div class="avanzaLogo" title="Plan Avanza2" ></div>
 	</a>
 	
 </div>
@@ -585,7 +628,6 @@
 		<p>Contacto y soporte: rober.bv@gmail.com</p>
 	</li>	  
 </ol>
-
 
 
 

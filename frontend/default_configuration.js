@@ -8,7 +8,7 @@ var configuration = {
 		"sparql_baseURL" : []
 	},
 	"template" : {
-		"pageTitle" : "Episteme",
+		"pageTitle" : "Financial Twitter Tracker",
 		"logoPath": "",
 		"showMapWidget": "",
 		"showResultsWidget": true,
@@ -16,7 +16,7 @@ var configuration = {
 	},
     "results" : {
 		"wcolor": "color-red",
-		"wtitle": "Resultados",
+		"wtitle": "Tweets",
 		"wtype": "results",
 		"wcollapsed" : false,
 		"extra" : [],
