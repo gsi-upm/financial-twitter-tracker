@@ -123,7 +123,7 @@ class RawClassifier(object):
         count = 0
         tokens = nltk.word_tokenize(text)
          #TODO more languages
-        #tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
+        tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
         if len(tokens) > 0:
             for token in tokens: 
                 synsets = self.swn.senti_synsets(token)
