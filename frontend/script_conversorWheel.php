@@ -11,8 +11,10 @@ $endpoint = "http://shannon.gsi.dit.upm.es/episteme/lmf/sparql/select";
 
 //QUERY PARA SELECCIONAR DATOS
 if($filtro == ""){
+	//SELECT * WHERE {[] <http://purl.org/dc/elements/1.1/title> ?comp; <http://purl.org/marl/hasPolarity> ?polarity; <http://purl.org/marl/opinionText> ?text;}
 	$query = "SELECT%20*%20WHERE%20%7B%5B%5D%20%3Chttp%3A//purl.org/dc/elements/1.1/title%3E%20%3Fcomp%3B%20%3Chttp%3A//purl.org/marl/hasPolarity%3E%20%3Fpolarity%3B%20%3Chttp%3A//purl.org/marl/opinionText%3E%20%3Ftext%3B%7D";
 }else{
+	// SELECT * WHERE {[] <http://purl.org/dc/elements/1.1/title> ?comp; <http://purl.org/marl/hasPolarity> ?polarity; <http://purl.org/marl/opinionText> ?text; FILTER regex(?comp, "".$filtro."")}
 	$query = "SELECT%20*%20WHERE%20%7B%5B%5D%20%3Chttp%3A//purl.org/dc/elements/1.1/title%3E%20%3Fcomp%3B%20%3Chttp%3A//purl.org/marl/hasPolarity%3E%20%3Fpolarity%3B%20%3Chttp%3A//purl.org/marl/opinionText%3E%20%3Ftext%3B%20FILTER%20regex%28%3Fcomp%2C%20%22".$filtro."%22%29%7D";
 }
 //Cambiamos los < , > para la URL por sus equivalentes

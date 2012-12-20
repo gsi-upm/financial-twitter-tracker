@@ -38,7 +38,7 @@ AjaxSolr.DropDownParamWidget = AjaxSolr.AbstractParamWidget.extend({
         }
         t.change(function() {
             var val = $("option:selected", $(this)).attr('value');
-            self.set('score' + " asc");
+            self.set(val + " asc");
         });
 
     },
@@ -57,7 +57,7 @@ AjaxSolr.DropDownParamWidget = AjaxSolr.AbstractParamWidget.extend({
     },
     beforeRequest : function() {
         var sort = this.manager.store.get(this.param).val();
-	console.log("SORT ES: " + sort);
+	//console.log("SORT ES: " + sort);
         //$('option', $(this.target)).removeAttr('selected');
         //$('option[value="' + sort + '"]', $(this.target)).attr('selected', 'selected');
     },
