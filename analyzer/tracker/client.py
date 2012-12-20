@@ -13,7 +13,8 @@ import requests
 # sys.path.append('../')
 
 MCC = MoodClassifierTCPClient('127.0.0.1',6666)
-words = ['dow jones', 'nasdaq', 'S&P 500', 'S&P500', 'stock']
+#words = ['dow jones', 'nasdaq', 'S&P 500', 'S&P500', 'finance']
+words = ['finance']
 
 
 
@@ -66,8 +67,10 @@ class StreamWriter(threading.Thread):
 			# total salen en todos los tweets asi que no aportan informacion...
 			textMood = MCC.classify([{'text': text}], " ".join(self.words))
 
-			#print textMood, '\n'
-			self.sendFile(tweet, textMood)
+			if (textMood[0].get('x_mood') != 0.0):
+				if (textMood[0].get('x_lang') == 'en'):
+					print textMood[0].get('x_mood'), " -> ", textMood[0].get('text') 
+			#self.sendFile(tweet, textMood)
 			#print self.createFile(tweet, textMood)
 
 			cPickle.dump(tweet, self.fileMood, protocol=1)
@@ -89,7 +92,7 @@ xmlns:dc="http://purl.org/dc/elements/1.1/"
 xmlns:sioc="http://rdfs.org/sioc/ns#"
 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 xmlns:marl="http://purl.org/marl/">
-	<rdf:Description rdf:about="https://api.twitter.com/1/statuses/show/'"""
+	<rdf:Description rdf:about="https://api.twitter.com/1/statuses/show/"""
 		s += tweet.get('id_str').encode('utf-8')
 		s += """.json">
 		<rdf:type rdf:resource="http://rdfs.org/sioc/types#MicroblogPost"/>

@@ -1,0 +1,440 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Financial Twitter Tracker</title>
+
+<!-- stylesheets -->
+<link rel="stylesheet" href="css/main.css" type="text/css">
+<link rel="stylesheet" href="css/wheel.css" type="text/css">
+<link rel="stylesheet" href="css/barras.css" type="text/css">
+<link rel="stylesheet" href="css/kendo.default.min.css" type="text/css">
+<link rel="stylesheet" href="css/kendo.common.min.css" type="text/css">
+
+<!-- javascript -->
+
+
+<script type="text/javascript" charset="UTF-8" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script src="js/kendo.web.min.js"></script>
+<script src="js/knockout-2.1.0.js"></script>
+<script src="js/knockout-kendo.min.js"></script>
+
+<script type="text/javascript" charset="UTF-8" src="default_configuration.js"></script>
+
+  <script type="text/javascript" charset="UTF-8" src="js/underscore.js"></script>
+  <script type="text/javascript" src="js/knockout.mapping.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="js/sammy-latest.min.js"></script>
+
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/core/Core.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/core/AbstractManager.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/managers/Manager.jquery.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/helpers/ajaxsolr.theme.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/core/Parameter.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/core/ParameterStore.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/core/AbstractWidget.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/core/AbstractTextWidget.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/core/AbstractFacetWidget.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="ajax-solr/core/AbstractParamWidget.js"></script>
+
+  <script type="text/javascript" charset="UTF-8" src="widgets/TagcloudWidget.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="widgets/PagerWidget.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="widgets/DropDownParamWidget.js"></script>
+
+<link rel="stylesheet" type="text/css" href="js/ext/jquery.autocomplete.css" media="screen" />
+<script type="text/javascript" charset="UTF-8" src="js/ext/jquery.autocomplete.js"></script>
+<script type="text/javascript" charset="UTF-8" src="widgets/AutocompleteWidget.js"></script>
+<!--<script type="text/javascript" charset="UTF-8" src="widgets/TextWidget.js"></script>-->
+
+  <script type="text/javascript" charset="UTF-8" src="widgets/ResultWidget.2.0.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="widgets/CurrentSearchWidget.js"></script>
+
+
+  <script type="text/javascript" charset="UTF-8" src="js/theme.js"></script>
+
+  <script type="text/javascript" charset="UTF-8" src="js/jquery.livequery.js"></script>
+  <script type="text/javascript" charset="UTF-8" src="jquery-ui-personalized-1.6rc2.min.js"></script>
+
+   <script type="text/javascript" charset="UTF-8" src ="js/jquery.localize.js"></script>
+<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
+
+<link rel="stylesheet" type="text/css" href="http://knockoutjs.com/examples/resources/twitterExample.css">
+<script type='text/javascript' src="js/twitterApi.js"></script>
+
+<script type="text/javascript" charset="UTF-8">
+  
+function getTableHeaders(headerVars) {
+  var trHeaders = $("<tr></tr>");
+  for(var i in headerVars) {
+    trHeaders.append( $("<th>" + headerVars[i] + "</th>") );
+  }
+  return trHeaders;
+}
+
+function getTableRow(headerVars, rowData) {
+  var tr = $("<tr></tr>");
+  for(var i in headerVars) {
+    tr.append(getTableCell(headerVars[i], rowData));
+  }
+  return tr;
+}
+
+function getTableCell(fieldName, rowData) {
+  var td = $("<td></td>");
+  var fieldData = rowData[fieldName];
+  td.html(fieldData["value"]);
+  return td;
+}
+  
+          
+  //]]>
+</script>  
+
+
+</head>
+
+
+<body>
+
+<header class="toppage">
+
+	 <img class="imagen" src="img/settings.png" data-bind="click: $root.configure"></img>
+	<img class="imagen" src="img/save.png" data-bind="click: $root.doSave"></img>  
+	
+	<div align="center" id="imagen_logo">
+		<img  src="images/ftt_header.png"/>
+		<br>
+		<h7>Financial Twitter Tracker</h7>
+	</div>
+	
+<!-- CONFIGURACIÓN -->
+<div id="configuration" >
+	<!--<h2 data-localize="configuration"></h2>
+	</br>-->
+	</br>
+
+	<button class="button" data-bind="click: $root.addWidget">Añadir TagCloud</button>	
+	
+	</br>
+	</br>
+	
+	<div class="col1">
+	<h3>Variables</h3>
+	<p><input id="baseurl" type="text" data-bind="value: baseURL" placeholder="Apache SOLR endpoint"></input> </p>
+
+	<p><input id="sparql_baseurl" type="text" data-bind="value: sparql_baseURL" placeholder="Sparql endpoint"></input></p>
+
+	</div>
+
+	<!-- <div class="col2">
+	<h3>Personalización</h3>
+	 <p><input id="pagetitle" type="text" data-bind="value: pageTitle" placeholder="Título de la página"></input> </p> 
+	<p><input id="logopath" type="text" data-bind="value: logoPath" placeholder="Logo de la página" ></input> </p>
+	
+	</div> -->
+
+	<div style="clear:both"></div>
+	
+	</br>
+	
+	<hr width=100%>
+
+</div>
+
+</header>
+
+
+<div class="page-header">
+
+	<!-- <img id="logoimage" data-bind="if: logoPath, attr: {src: logoPath}" />
+	<div id="logotext"><a href="" data-bind="text: pageTitle">Financial Twitter Tracker</a> </div> -->
+
+<div>
+
+	<!--<form class="busqueda">
+		<ul id="localsearch"><input type="text" placeholder="Tu consulta local" data-bind="visible: lightmode, value:filter, valueUpdate: 'afterkeydown', attr: { filterType: name }"></input></ul>-->
+
+		<!-- <input data-bind="visible: lightmode, kendoAutoComplete: { data: autoComplete, value: filter }" />
+
+		<ul id="search"><input type="text" id="query" name="query" placeholder="Tu consulta" data-bind="visible: !lightmode()"></input></ul> -->
+
+
+	<!--</form>-->
+
+</div>
+
+
+</div>
+
+<!-- Empieza main content -->
+<div class="maincontent" data-bind="visible: page() == 0">
+
+	<!-- <p><input type="checkbox" data-bind="checked: sparql"/>Consultas SPARQL</p> 
+	<p><input type="checkbox" data-bind="checked: lightmode"/>Modo local</p> 
+	<p><input type="checkbox" data-bind="checked: showMapWidget"/>Mostrar Mapa</p> -->
+
+
+	<!-- <div data-bind="ifnot: baseURL"><div id="alertmsg" class="alertmsg-yellow">Atención, no está definido el Apache SOLR endpoint</div></div>
+	<div data-bind="ifnot: sparql_baseURL"><div id="alertmsg" class="alertmsg-yellow">Atención, no está definido el SPARQL endpoint</div></div> -->
+
+<!-- <div style="padding: 20px;" data-bind="kendoWindow: { isOpen: isOpen, visible: false }">
+	<table id="layout">
+
+ <tbody data-bind="foreach: resLayout">
+    <tr>
+        <td><span data-bind="text: Name"/></td>
+	<td><input data-bind="value: Value"></input></td>
+
+        <td><select data-bind="options: $parent.semantic_fields, 
+            value: Value,
+            optionsCaption: 'Selecciona un campo...'"></select></td>
+
+        <td>Campo: <p data-bind="text: Value"/></td>
+    </tr>
+</tbody> 
+
+
+<tr><td><p data-bind="text: titulo"></p></td></tr>
+	<tr><td>Título</td><td><select id='result_conf_title' data-bind="options: semantic_fields, value: titulo"></select></td></tr>
+
+   		<tr><td>Subtítulo</td><td><select id='result_conf_subtitle' data-bind="options: dataColumns"></select></td></tr>
+		<tr><td>Enlace</td><td><select id='result_conf_link' data-bind="options: dataColumns"></select></td></tr>                            
+		<tr><td>Imagen</td><td><select id='result_conf_image' data-bind="options: dataColumns"></select></td></tr>      
+		<tr><td>Descripción</td><td><select id='result_conf_description' data-bind="options: dataColumns"></select></td></tr>
+
+	</table>
+</div> -->
+
+
+
+    <div id="columns">
+        <ul id="column0tab0" class="column">
+
+
+
+<li class="widget color-green" id="widgetIndividual">
+                <div class="widget-head">
+                    <h3>Tweets</h3>
+
+                </div>
+                <div class="widget-content" >
+			<div class="resultswidget-header" data-bind = "visible: !sparql()">
+				<div class="seleccion_actual"><h3>Selección</h3><ul id="currentselection" data-bind="visible: !lightmode()"></ul>
+				<div data-bind="visible: lightmode"><p data-bind="text: filterCategory"></p><button data-bind="click: $root.resetFilterCategory">Eliminar</button></div></div>
+				
+				
+				<div data-bind="visible: !lightmode()"><div id="pager-header" ></div><ul id="pager"></ul></div>
+				<!-- <select data-bind="options: dataColumns, value: sortBy, optionsCaption: 'Ordenar por...', enable: viewData().length > 0"></select> -->
+				
+			</div>
+
+			<table id="results_sparql"></table>
+
+			
+	    		<div data-bind="foreach: filteredData">
+				<div class="resultado">
+					
+					
+					<!---<h2 data-bind="text: $data[$root.title()]"></h2>-->
+					<h2 data-bind="text: $data[$parent.resLayout()[0].Value()]"></h2>
+					<h4  data-bind="text: $data[$parent.resLayout()[1].Value()]"></h4>
+					<p data-bind="text: $data[$parent.resLayout()[2].Value()]"></p>
+					<h5>Puntuación: <span data-bind="text: $data[$parent.resLayout()[3].Value()]"></span></h5>
+					
+				</div>
+
+	    		</div>
+
+				<!--se cierra widget-content-->
+		</div>
+		
+		</li>
+
+		
+	
+		
+<!--
+<li class="widget color-red" id="widget_results"><div class="widget-head"><h3 id="widget-nombre">Provincias</h3></div><div class="widget-content"><div id="sgvzl" data-sgvizler-endpoint="http://localhost:8080/LMF/sparql/select?" data-sgvizler-query="SELECT ?value WHERE {?s <http://www.gsi.dit.upm.es/province> ?value} ORDER BY ?value" data-sgvizler-chart="gPieChart" data-sgvizler-loglevel="0" data-sgvizler-chart-options="is3D=true|title=Number of instances" style="width:300px; height:200px;"></div></div></li>
+-->
+        </ul>
+
+
+
+        <ul id="column1tab0" class="column">
+		
+		
+		<li class="widget color-red">
+                <div class="widget-head">
+                    <h3>Gráfico</h3>
+
+                </div>
+               <div class="widget-content" >
+					
+					<div align="center" id="vis"></div> 
+						<script src="js/d3.v2.min.js"></script>
+						<script src="js/wheel.js"></script>
+			
+				</div>
+		
+		</li>
+		
+		<li class="widget color-red">
+                <div class="widget-head">
+                    <h3>Diagrama de Barras</h3>
+
+                </div>
+               <div class="widget-content" >
+					
+					<div align="center" id="barras"></div> 
+					<script src="js/barras.js"></script>
+
+			
+				</div>
+		
+		</li>
+<!--<div class="widget-content" ><div class="resultswidget-header"><div class="seleccion_actual"><h2>Selección</h2><ul id="currentselection" data-bind="visible: !lightmode()"></ul><div data-bind="visible: lightmode"><p data-bind="text: filterCategory"></p><button data-bind="click: $root.resetFilterCategory">Eliminar</button></div></div><div id="loading"><img src="images/ajax-loader.gif"></div><div data-bind="visible: !lightmode()"><div id="pager-header" ></div><ul id="pager"></ul></div><select data-bind="options: dataColumns,value: sortBy, optionsCaption: 'Ordenar por...', enable: viewData().length > 0 && lightmode"></select></div><table id="results_sparql"></table><div data-bind="foreach: filteredData"><div class="resultado"><!-- ko if: $data[configuration.results.image]!=undefined --><!--<img id="image" data-bind="attr: {src: $data[configuration.results.image]}"></img><!-- /ko --><!--<h2 data-bind="text: $data[configuration.results.title]"></h2><h4 data-bind="text: $data[configuration.results.subtitle]"></h4><p data-bind="text: $data[configuration.results.description]"></p></div></div></div>-->
+
+		
+<li class="widget color-red" id="widget_results" data-bind="visible: showMapWidget"><div class="widget-head"><h3 id="widget-nombre">Mapa</h3></div><div class="widget-content">
+<div id="map"></div>
+
+
+
+</div></li>
+        </ul>
+        
+        <!-- cerramos las columnas -->
+    </div>
+
+
+
+
+<!-- Termina maincontent-->
+</div>
+
+<div class="graphcontent" data-bind="visible: page() == 1">
+
+    <div id="columns">
+        <ul id="column0tab1" class="column">
+		
+<!--	
+<li class="widget color-red"><div class="widget-head"><h3 id="widget-nombre">Provincias</h3></div><div class="widget-content"><div id="sgvzl1" data-sgvizler-endpoint="http://localhost:8080/LMF/sparql/select?" data-sgvizler-query="SELECT ?value WHERE {?s <http://www.gsi.dit.upm.es/province> ?value} ORDER BY ?value" data-sgvizler-chart="gPieChart" data-sgvizler-loglevel="0" data-sgvizler-chart-options="is3D=true" style="width:500px; height:400px; margin: 0px auto;"></div></div></li>
+-->
+
+        </ul>
+
+
+
+        <ul id="column1tab1" class="column">
+<!--
+<li class="widget color-red"><div class="widget-head"><h3 id="widget-nombre">Tipo de Empresa</h3></div><div class="widget-content"><div id="sgvzl2" data-sgvizler-endpoint="http://localhost:8080/LMF/sparql/select?" data-sgvizler-query="SELECT ?value WHERE {?s <http://www.gsi.dit.upm.es/type> ?value} ORDER BY ?value" data-sgvizler-chart="gPieChart" data-sgvizler-loglevel="0" data-sgvizler-chart-options="is3D=true" style="width:500px; height:400px; margin: 0px auto;"></div></div></li>
+-->
+
+        </ul>
+        
+        <!-- cerramos las columnas -->
+    </div>
+
+</div>
+
+
+
+<div class="footer" data-bind="visible: page() == 0">
+
+<img src="images/logo_gsi.png"/> <img src="images/logoAvanza.png"/>
+
+</div>
+
+
+
+<!--<script type='text/javascript' src="js/resultslistviewmodel.js"></script>-->
+
+
+<!-- SIEMPRE LO ÚLTIMO -->
+
+
+
+<script type='text/javascript' charset="UTF-8" src="js/mvvm.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("[data-localize]").localize("lang");
+	createMap();
+	// Load the Visualization API and the piechart package.
+    google.load('visualization', '1.0', {'packages':['corechart']});
+
+	ko.applyBindings(vm);
+});
+</script>
+
+<script type="text/javascript" charset="UTF-8" src="inettuts.js"></script>
+
+
+<script type="text/javascript" charset="UTF-8" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" charset="UTF-8" id="sgvzlr_script" src="http://sgvizler.googlecode.com/svn/release/0.5/sgvizler.js"></script>
+<script type="text/javascript" charset="UTF-8">
+  // CONFIGURATION Sgvizler 0.5: Set variables to fit your setup.
+  // NB! Do not let the last item in a list end with a comma.
+
+   //// Query settings. The defaults settings are listed.
+   sgvizler.option.query = {
+       // Default query. 
+       //'query':                "SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE{ ?instance a ?class }\nGROUP BY ?class\nORDER BY ?class",
+
+       // Endpoint URL. 
+       //'endpoint':             "http://sws.ifi.uio.no/sparql/world",
+
+       // Endpoint output format. 
+       //'endpoint_output':      'json',  // 'json', 'jsonp' or 'xml'.
+
+       // This string is appended the 'endpoint' variable and the query to it again to give a link to the "raw" query results.
+       //'endpoint_query_url':   "?output=text&amp;query=",
+
+       // URL to SPARQL validation service. The query is appended to it. 
+       //'validator_query_url':  "http://www.sparql.org/query-validator?languageSyntax=SPARQL&amp;outputFormat=sparql&amp;linenumbers=true&amp;query=",
+
+       // Default chart type. 
+       //'chart':                'gLineChart',
+
+       // Default log level. Must be either 0, 1, or 2. 
+       //'loglevel':             2
+   };
+
+   //// Prefixes
+   // Add convenient prefixes for your dataset. rdf, rdfs, xsd, owl
+   // are already set.  Examples: 
+   sgvizler.option.namespace['wd'] = 'http://sws.ifi.uio.no/d2rq/resource/';
+   sgvizler.option.namespace['w']  = 'http://sws.ifi.uio.no/ont/world.owl#';
+
+   //// Your chart drawing preferences. The defaults are listed.
+   // See the Google visualization API for available options for
+   // Google charts, and the Sgvizler homepage for other
+   // options. Options applicable to all charts are put in the
+   // "root" of sgvizler.chartOptions. Chart specific options are
+   // put in a "child" with the chart's id as name,
+   // e.g. 'gGeoMap'. 
+   sgvizler.option.chart = { 
+       //'width':           '800',
+       //'height':          '400',
+       //'chartArea':       { left: '5%', top: '5%', width: '75%', height: '80%' },
+       //     'gGeoMap': {
+       //        'dataMode':           'markers'
+       //     },
+       //     'gMap': {
+       //        'dataMode':           'markers',
+       //     },
+       //     'sMap': {
+       //        'dataMode':           'markers',
+       //        'showTip':            true,
+       //        'useMapTypeControl':  true
+       //     } 
+   };
+
+   //// Leave this as is. Ready, steady, GO!
+   $(document).ready(sgvizler.go());
+</script>
+
+</body>
+
+
+</html>

@@ -1,1088 +1,1218 @@
-	// TO-DO
-	var core = "ftt1";
-	var map;
-	var i_layoutresultsextra = 0;
 
+/** YOU MUST EDIT THIS LINE */
+//var serverURL = "http://localhost:8080/LMF/";
+var serverURL = "http://shannon.gsi.dit.upm.es/episteme/lmf/";
 
+var map;
+var i_layoutresultsextra = 0;
 
- /*
-var resultsLayout = [
-{
-    Name: "Título",
-    Value: ko.observable("")},
-{
-    Name: "Subtítulo",
-    Value: ko.observable("")},
-{
-    Name: "Descripción",
-    Value: ko.observable("")},
-{
-    Name: "Logo",
-    Value: ko.observable("")},
-];
-*/
-	var Manager;
-	var semantic_option_fields;
-	var widget_semantic_fields;
+var Manager;
+var markers = [];
 
-	var markers = [];
+var coreSelected;
 
-function Widget(name, content) {
-    var self = this;
-    self.name = ko.observable(name);
-    self.content = ko.observable(content);
+var firstTime = true;
+var autocompleteSOLR = [];
 
-/*
-    self.formattedPrice = ko.computed(function() {
-        var price = self.meal().price;
-        return price ? "$" + price.toFixed(2) : "None";        
-    });    
-*/
-}
+//templateWidgets = [{"id":5,"title": "No borrar", "type": "tagcloud", "field":"type","collapsed":false,"values":[]},{"id":0,"title": "Provincias", "type": "tagcloud", "field":"province","collapsed":false,"values":[]},{"id":1,"title": "Provincias (Gŕafico)", "type": "sgvizler", "query":"SELECT ?o WHERE { ?s <http://www.w3.org/2006/vcard/ns#locality> ?o}","collapsed":false,"value":""}];
+templateWidgets = [];	
 
-function ResultsListViewModel() {
-
-	var self = this;
-	// Inicializamos variables
-	//self.widgetsActivos = ko.observableArray([{ name: "Provincias", type: "province" , id: Math.floor(Math.random() * 10001)}, { name: "Tipo de Empresa", type: "type", id: Math.floor(Math.random() * 10001)}]);
-
+function InitViewModel() {
 	
-	//console.log("CONFIG DEFAULT ES: " + configuration.other.available_languages);
-
-	self.widgetsActivos = ko.observableArray([]);
-	//self.layoutResultsExtraItems = ko.observableArray([]);
-	//self.availableWidgetTypes = ko.observableArray(['province', 'type', 'address']);
-
-	//self.baseURL = ko.observable(configuration.baseURL);
-	self.baseURL = ko.observable();
+	var self = this;
+	
+	/** Endpoint variables */
+	self.serverURL = ko.observable(serverURL);
+	self.solr_baseURL = ko.observable();
+	//self.sparql_baseURL = ko.observable("http://localhost:8080/LMF/sparql/select");
 	self.sparql_baseURL = ko.observable();
-	self.pageTitle = ko.observable();
+	self.core = ko.observable();
+	self.listCores = ko.observableArray();
+	
+	/** Template variables */
+	self.pageTitle = ko.observable(configuration.template.pageTitle);
 	self.logoPath = ko.observable();
-
+	self.showMapWidget = ko.observable();
+	self.showTwitterWidget = ko.observable(false);
+	self.showConfigurationPanel = ko.observable(false);
+	self.showResultsWidget = ko.observable(true);
+	self.openEditResultsLayout = ko.observable(false);
+	self.openNewWidgetManager = ko.observable(false);
+	self.resultsWidget = ko.mapping.fromJS(configuration.results);
+	self.resultsLayout = ko.mapping.fromJS(configuration.results.resultsLayout);
+	self.editingTitle = ko.observable();
+	self.autoCompleteFields = ko.observableArray([]);
+	self.autocomplete_fieldname = ko.observable(configuration.autocomplete.field);
+	
+	/** Language */
+	self.lang = ko.observable(languages[0]);
+	self.selectedLanguage = ko.observable(configuration.template.language);	
+	
+	
+	/** Active route */
+	self.page = ko.observable();
+	/** Routes */
+	//self.goToMain = function() { location.hash = "#/main/" + self.core() };
+	//self.goToGraphic = function() { location.hash = "#/graph/" + self.core() };
+	
+	
+	/** Configuration variables */
 	self.sortBy = ko.observable();
+	self.sparql = ko.observable(false);
+	self.dbpedia = ko.observable(false);
+	self.lightmode = ko.observable(false);
+	
+	/** All data */
+	self.testData = [];
+	self.viewData = ko.mapping.fromJS(self.testData);
+	
+	/** Text in search field */
 	self.filter = ko.observable();
+	
+	/** Type of field what we are searching for (i.e: province) */
 	self.filterType = ko.observable();
-	self.filterArray = ko.observableArray();
-
-	self.filterCategory = ko.observable();
+	
+	/** Filtered Data with activeWidgets */
 	self.filteredCategory = ko.observableArray();
 	
-	self.lightmode = ko.observable(configuration.other.lightmode);
-	self.autocomplete_fieldname = ko.observable(configuration.autocomplete.field);
-
-	self.sparql = ko.observable(false);
-	self.showResultsWidget = ko.observable(true);
-	console.log("MOSTRAR MAPA: " + configuration.other.showMap);
-	self.showMapWidget = ko.observable(configuration.other.showMap);
-	self.isOpen = ko.observable(false);
-
-	self.resultsLayout = ko.observableArray(configuration.results.resultsLayout);
-	self.results2Layout = ko.observableArray();
-	self.semantic_fields = ko.observableArray();
-	
-	self.currentTweets = ko.observableArray([]);
-
+	/** Extra plugins */
+	self.currentTweets = ko.observableArray([]); // No se usa
 	self.mapLat = ko.observable(configuration.mapWidget.latitude);
 	self.mapLong = ko.observable(configuration.mapWidget.longitude);
+	self.sgvizlerQuery = ko.observable("SELECT ?o WHERE { ?s <http://www.w3.org/2006/vcard/ns#locality> ?o}");
 	
-	self.resLayout = ko.observableArray(
-		ko.utils.arrayFilter(self.resultsLayout(), function(item) {
-		console.log(item);
-		return ko.observable(item);
-    	}));
+	/** TagCloudWidgets related */
+	self.widgetContent = ko.observableArray();
+	self.activeWidgets = ko.mapping.fromJS(self.testData);
 
-    	//self.widgets = ko.observableArray([
-        	//new Widget("Steve", "province"),
-        	//new SeatReservation("Bert", self.availableMeals[0])
-    	//]);
 
-	//self.resultsLayout_titulo = ko.observable();
-	self.test = ko.observableArray(["name", "province"]);
 	
-        self.testData = [];
-        self.viewData = ko.mapping.fromJS(self.testData);
-	 
-
-	 //self.tagclouditems = ko.observableArray([['Provincias', 'Contador'],['Madrid', 15],['Barcelona', 10]]);
-	 
-
-	 //self.tagclouditems = ko.observableArray(["province"],["type"]); // SI funciona
-	 //self.tagclouditems = ko.observableArray([['Provincias'],['Madrid'],['Barcelona']]); // SI funciona
-	 //self.tagclouditems = ko.observableArray(['Provincias','Madrid','Barcelona']); <- No funciona (array unidimensional)
-	 //self.tagclouditems = ko.observableArray([]);
-		
-        // para pestañas
-	self.page = ko.observable(0);
-	 
-	self.languages = ko.observableArray(configuration.other.available_languages);
-	self.selectedLanguage = ko.observable(configuration.other.default_language);
-
-	self.selectedLanguage.subscribe(function (newValue) {
-		
-		if(newValue!=undefined && newValue.localeCompare("Español")==0){
-			$("[data-localize]").localize("lang", { language: "es" });
-		}else{
-			$("[data-localize]").localize("lang", { language: "en" });
-		}
-	});
-
-    self.tagclouditems = ko.observableArray(ko.utils.arrayMap([], function(contact) {
-        return { type: contact.type, values: ko.observableArray(contact.values) };
-    }));
-
-
-
-	self.logs = function() {
-
-	$(".footer").append("<div id='dynamic'><p data-bind='text: pageTitle'></p><div class='pruebaa'></div></div>");
-    	ko.applyBindings(vm, document.getElementById("dynamic"));
-
-      	Manager.addWidget(new AjaxSolr.TagcloudWidget({
-        	id: "pruebaaa",
-        	target: '.pruebaa',
-        	field: 'province',
-	}));
-
-/*
-		ko.utils.arrayFilter(self.tagclouditems(), function(itm) {
-  				// Create and populate the data table.
-
-				console.log("tagclouditems es: " + itm.type);
-				ko.utils.arrayFilter(itm.values, function(item) {
-
-				console.log("Item para tipo: " + itm.type + " es: " + item);
-
+	/** Returns all data given a field (i.e type: province returns [facet: "Madrid", count: "5"]...)  */
+	ko.utils.getDataColumns = function(type) {  
+		console.log("RESPONSE:");  
+		console.log(Manager.response);
+		/** Local mode */
+		if(self.lightmode()){
+			var response = [];
+			var results = ko.utils.arrayMap(self.filteredData(), function(item) {
+				
+				if(item[type]!=undefined) {
+					if(self.sparql()){
+						return item[type].value();
+						}else{
+						return item[type]()[0];
+					}
+				}
 			});
-		});	
-*/
-/*
-
-		ko.utils.arrayFilter(self.resultsLayout(), function(itm) {
-			console.log("resultsLayout " + itm.Value());
-		});
-
-		ko.utils.arrayFilter(self.resLayout(), function(itm) {
-			console.log("resLayout " + itm.Value());
-		});
-*/
-		//console.log(self.resLayout());
-
-		/*ko.utils.arrayFilter(self.resLayout(), function(itm) {
-			console.log("TITULO ES: " + itm().Name);
-		});*/
-
-		//console.log(self.autoComplete()[0].name());
+			
+			var different = ko.utils.arrayGetDistinctValues(results).sort();
+			
+			for(var i in different){
+				var count = countElement(different[i], results);
+				response.push({ facet: different[i], count: count});
+			}
+			
+			return response.sort();
+			
+			}else{
+			
+			if (Manager.response.facet_counts.facet_fields[type] === undefined) {
+				return ["No se ha podido recuperar información"];
+			}
+			
+			var maxCount = 0;
+			var objectedItems = [];
+			
+			for (var facet in Manager.response.facet_counts.facet_fields[type]) {
+				
+				var count = parseInt(Manager.response.facet_counts.facet_fields[type][facet]);
+				if (count > maxCount) {
+					maxCount = count;
+				}	
+				
+				objectedItems.push({ facet: facet, count: count });
+			}
+			
+			objectedItems.sort(function (a, b) {
+				return a.facet < b.facet ? -1 : 1;
+			});
+			
+			
+			return objectedItems.sort();
+		}
 	};
 	
-	self.addSgvizlerWidget = function() {
-		console.log("boton clicado sgvizler");
-		
-/*
-		ko.utils.arrayFilter(self.tagclouditems(), function(itm) {
-  				// Create and populate the data table.
-
-				console.log("tagclouditems es: " + itm.type);
-				ko.utils.arrayFilter(itm.values, function(item) {
-
-				console.log("Item para tipo: " + itm.type + " es: " + item);
-
-			});
+	/** This function populate all tagcloud widgets content */
+	function updateWidgets(){
+		console.log("updatewidgets");
+		$.each(self.activeWidgets(), function(index, item) {
+			if(item.type()=="tagcloud"){
+				self.widgetContent(ko.utils.getDataColumns(item.field()));
+				populateWidgets(index);
+			}
 		});
-*/
-
-  
-		graphWidgetWizard();
-
-		//window.location.reload();
+	};
+	
+	/** each value is a tag:
+		id: 0
+		name: Madrid
+		state: false/true (depending on if we clicked on it or not)
+	*/
+	
+	function populateWidgets(pIndex){
+		var parent = self.activeWidgets()[pIndex];
+		var countIndex = 0;      
 		
+		parent.values.removeAll();
 		
-		//sgvizler.go();
-  		/*
-		iNettuts.addWidget("#column0", {
-			id: Math.floor(Math.random() * 10001),
-    			color: "color-blue",			
-    			title: "Nuevo gráfico",
-			type: "sgvizler",
-			query: sgvizlerQuery
-  		})
-		*/
+		$.each(self.widgetContent(), function(index, item) {  ; 
+			
+			parent.values.push(
+			{"id": ko.observable(countIndex++),
+				"name": ko.observable(self.widgetContent()[index].facet),
+				"state": ko.observable(false)
+			}
+			);
+		});  
+		
+		parent.values.sortByPropertyCat('id');
+	}
+	
+	/** This function deletes a widget */
+	self.deleteWidget = function(widget) {
+		self.activeWidgets.remove(widget);									
+	};
+	
+	/** Collapse a given widget */
+	self.collapseWidget = function() {
+		var val = this.collapsed();
+		this.collapsed(!val);
 	};	
 	
-
-
-    self.dataColumns = ko.computed(function() {
-            var mapping = _.map(self.viewData(), function(element){ return Object.keys(element); });
-	    //console.log("Mapping: " + mapping);
-            var flat = _.reduce(mapping, function(a,b){return a.concat(b); }, [] );
-	    //console.log("Mapping: " + flat);
-            
-			var unique = _.uniq(flat);
-	    //console.log("Mapping: " + unique);
-
-            return unique;
-    });
-	
-		self.sortBy.subscribe(function (newValue) {
-			if(newValue!=undefined && self.lightmode()){
-				console.log("Nuevo valor: " + newValue);
-				self.viewData.sortByPropertyAsc(newValue);
-				ko.utils.arrayFilter(self.viewData(), function(itm) {
-					//console.log("Datos es: " + itm[newValue]());
-				});				
-			}
-		});		
+	/** When a tag in TagCloud widget is clicked we switch its state */
+	self.tagCloudSelection = function(pIndex, index, field) {
 		
-		self.lightmode.subscribe(function (newValue) {
-			console.log("Nuevo valor: " + newValue);
-			self.filter("");
-			self.filterCategory("");
-			Manager.doRequest();
+		/*
+			var parent_match = ko.utils.arrayFilter(self.activeWidgets(), function(item) {
+			if(item.id()==pIndex) {
+			return item;
+			}
+			});
+			
+			var parent = parent_match[0];
+		*/
+		
+		var parent = self.activeWidgets()[pIndex];
+		
+		
+		var temp = !parent.values()[index()].state();  
+		
+		parent.values.remove(function(item) {
+			return item.name() == field;
+		});   
+		
+		parent.values.push(
+		{"id": index,
+			"name": ko.observable(field),
+			"state": ko.observable(temp)
 		});
 		
-		self.sparql.subscribe(function (newValue) {
-			self.filter("");
-
-			$("#results_sparql").empty();
-			//Manager.doRequest();
-		});			
+		parent.values.sortByPropertyCat('id');		
 		
-		self.listArray = function(field){
-			console.log("Sacamos provincias de filteredData " + field);
-			
-			var provinces = ko.utils.arrayMap(self.filteredData(), function(item) {
-				if(item[field]!=undefined) {
-					return item[field]()[0];
-				}
-			});
-			
-			console.log(ko.utils.arrayGetDistinctValues(provinces).sort());
-			return ko.utils.arrayGetDistinctValues(provinces).sort();
-			
-		};
-		
-	self.filterData = function (field,value){
-		console.log("Campo es: " + field);
-		console.log("Value es: " + value);		
-		self.filterType(field);
-		self.filterCategory(value);
-		
+		if(!self.lightmode()){
+			updateSolrFilter();
+		}
 	};
 	
-	self.resetFilterCategory = function (){
-		self.filterCategory("");
+	/** Language related functions */
+	self.languages = ko.computed(function () {
+		var response = new Array();
+		for(var i=0, l = languages.length; i<l; i++){
+			response.push(languages[i].lang);	
+		}	
+		return response;
+	});
+	
+	self.selectedLanguageIndex = ko.dependentObservable(function() {
+		return self.languages().indexOf(self.selectedLanguage());
+	}, self);
+	
+	/** Subscribe to changes on language's select */
+	self.selectedLanguage.subscribe(function (newValue) {
+		var idx = self.selectedLanguageIndex();
+		
+		if(idx>-1){
+			self.lang(languages[parseInt(idx)]);
+			}else{
+		}
+		
+	});
+	
+	/** Test method when clicking on "Voy a tener suerte" button */
+	self.test = function (){
+		console.log("TEST");
+	};
+	
+	/** Reindex SOLR button */
+	self.reindexSOLR = function (){
+		$.ajax({
+			type:"POST",
+			url: self.serverURL() + "solr/cores/reinit",
+			success: function(data){
+				
+				$.blockUI.defaults.growlCSS.top = '30px'; 
+				$.growlUI('Reindexación realizada con éxito', ''); 	
+				//Manager.store.remove('fq');
+				//Manager.doRequest();
+				//firstTime=true;			
+			},
+			error: function() {
+				alert("Error al reindexar");
+			}
+		});		
+	};
+	
+	/** Add a custom graph given a sparql query */
+	self.addSgvizlerWidget = function() {
+		var id = Math.floor(Math.random() * 10001);
+		self.activeWidgets.push({"id":ko.observable(id),"title": ko.observable("Nuevo Gráfico"), "type": ko.observable("sgvizler"), "query":self.sgvizlerQuery(),"collapsed": ko.observable(false),"value":ko.observableArray([])});
+		saveConfiguration(true);
+		
+	};		
+	
+	/** This computed function gets fields contained in a certain response from any sparql/solr query (i.e: province, name, type...) */
+	self.dataColumns = ko.computed(function() {
+		var mapping = _.map(self.viewData(), function(element){ 
+		return Object.keys(element); });
+		var flat = _.reduce(mapping, function(a,b){return a.concat(b); }, [] );
+		var unique = _.uniq(flat);
+		
+		return unique;
+	});
+	
+	/** When "sort by" select option changes, sort viewData */
+	self.sortBy.subscribe(function (newValue) {
+		if(newValue!=undefined && self.lightmode()){
+			self.viewData.sortByPropertyAsc(newValue);
+			ko.utils.arrayFilter(self.viewData(), function(itm) {
+				
+			});				
+		}
+	});		
+	
+	/** When switching from light/heavy mode, reset all filters and doRequest */
+	self.lightmode.subscribe(function (newValue) {
+		self.filter("");
+		Manager.doRequest();
+	});
+	
+	
+	/** Unused method but could be useful */
+	self.listArray = function(field){
+		
+		var provinces = ko.utils.arrayMap(self.filteredData(), function(item) {
+			if(item[field]!=undefined) {
+				return item[field]()[0];
+			}
+		});
+		
+		return ko.utils.arrayGetDistinctValues(provinces).sort();			
 	};
 
+
+	
+	/** Shows popup to edit fields that are shown in results widget */
 	self.editResultsLayout = function (){
-		self.isOpen(true);
+		self.openEditResultsLayout(true);
 	};
+	
+	/** We use input field to make sparql queries (this will change soon) */
+	self.filter.subscribe(function (newValue){
+		if(self.sparql()){
+			self.getResultsSPARQL(newValue);
+		}
+	});
+	
+	/** This function does a mapping from json (response) to self.viewData and updateWidgets */
+	self.getResultsSPARQL = function(sparql_query){
 		
-	self.filteredCategory = ko.computed(function() {
+		var queryText = sparql_query;	
+		var endpoint = self.sparql_baseURL();
+		var finalQuery = queryText;
+		
+		if(self.dbpedia()){
+			queryText = queryText.replace(/\s/g, "_");
+			var queryResource = "<http://dbpedia.org/resource/" + queryText + ">";
+			finalQuery="PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>PREFIX dbo: <http://dbpedia.org/ontology/>PREFIX dbpprop: <http://dbpedia.org/property/>PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT DISTINCT ?label ?abstract ?nationality ?birthDate ?photo WHERE {" + queryResource + " rdfs:label ?label .OPTIONAL {" + queryResource + " dbo:abstract ?abstract .}OPTIONAL {" + queryResource + " foaf:page ?page .}OPTIONAL {" + queryResource + " dbpprop:nationality ?nationality .}OPTIONAL {" + queryResource + " dbpprop:birthPlace ?birthPlace .}OPTIONAL {" + queryResource + " dbpprop:birthDate ?birthDate .}OPTIONAL {" + queryResource + " dbo:thumbnail ?photo .}FILTER (LANG(?label) = 'es')FILTER (LANG(?abstract) = 'es')}";
+			endpoint = "http://dbpedia.org/sparql";
+		}
+		
+		//var finalQuery="select * where {<http://dbpedia.org/resource/"+ queryText +"> <http://xmlns.com/foaf/0.1/name> ?name ; <http://dbpedia.org/property/birthDate> ?birth ; <http://dbpedia.org/property/nationality> ?nationality ; <http://dbpedia.org/ontology/thumbnail> ?photo }";
+		finalQuery = encodeURIComponent(finalQuery);
+		finalQuery = decodeURIComponent(finalQuery);
+		
+		$.ajax({	
+			type: 'GET',
+			url: endpoint,
+			data: { query: finalQuery, output: 'json' },
+			beforeSend: function(){				
+				//$('#loading').show();
+			},
+			complete: function(){
+				//$('#loading').hide();
+			},
+			success: function(allData) {    
+				var data = JSON.stringify(allData.results.bindings);
+				
+				ko.mapping.fromJSON(data, self.viewData);
+				updateWidgets();
+			},
+			error: function() {
+				//$('#docs').append("Consulta fallida");  
+			}
+		});   
+	};	
+	
+	/** Filters the results widget using tags which state is true */
+	self.filteredCategory = ko.computed(function() {  
 		var data = self.viewData();
-		var filterType = self.filterType();
-		var filterCategory = self.filterCategory();
+		var filtro = self.activeWidgets();
 		
-		if(!filterCategory){
-			return data;  
-		}else{
-			return ko.utils.arrayFilter(self.viewData(), function(item) {
-				if(item[filterType]!=undefined) {
-					//console.log(item[filterType]().toString());
-					return ko.utils.stringStartsWith(item[filterType]().toString(), filterCategory);
+		if(!filtro){
+			return self.viewData();  
+			}else{
+			tempFilter = self.viewData();
+			$.each(self.activeWidgets(), function(index1, item1) {
+				if(item1.type()=="tagcloud" && self.lightmode()){
+					tempString = "";
+					catParent = item1.field();
+					//console.log(item1.values());
+					$.each(item1.values(), function(index2, item2) {
+						if(item2.state() == true){
+							tempString += " "+item2.name();
+							//console.log(tempString);
+						}
+					});
+					
+					tempFilter = ko.utils.arrayFilter(tempFilter, function(item) {
+						if(item[catParent]!=undefined){			
+							if(self.sparql()){
+								return ko.utils.stringContains(item[catParent].value().toString(), tempString);
+								}else{
+								return ko.utils.stringContains(item[catParent]().toString(), tempString);
+							}
+						}
+					});
 				}
 			});
-		}		
-	},self);
+			
+			return tempFilter;
+		}
+	},self);	
 	
+	/** Final data visualized in results widget (after text filter through input if exists) */
 	self.filteredData = ko.computed(function() {  
+
 		var data = self.filteredCategory();
+		//console.log(data)
 		
+		/** Search box filter */
 		var filter = self.filter();
 		var filterType = "name";
-		//console.log("FILTER ES: " + filterArray);
+		////console.log("FILTER ES: " + filterArray);
 		if(!self.sparql()){
 			if(!filter){
 				return data;  
-			}else{
+				}else if(self.lightmode()){
 				return ko.utils.arrayFilter(data, function(item) {
 					if(item[filterType]!=undefined) {
-						//console.log(item[filterType]().toString());
 						return ko.utils.stringStartsWith(item[filterType]().toString(), filter);
 					}
 				});
+				}else{
+				return data;
 			}
-		
-		}else{
-			getResultsSPARQL(filter);
+			
+			}else{
+			return data;
 		}
-	},self);	
-
+	},self);
 	
+	/** If results widget data changes, we must update the graphics on top */
+	self.filteredData.subscribe(function (newValue) {
+
+		//console.log("FILTERED_DATA: " +  ko.toJSON(newValue))
+		
+		$(".graphics").empty();
+		
+		$.each(self.activeWidgets(), function(index, item) {
+			//console.log("ITEM:" + ko.toJSON(item));
+			if(item.type()=="tagcloud"){
+				
+				$(".graphics").append("<div id='" + item.id()+ "'></div>");
+				
+				var t = ko.utils.getDataColumns(item.field());
+				//console.log("T:" + ko.toJSON(t))
+				var temp = [['Header',0]];
+				for(var i=0, l = t.length; i<l; i++){
+					temp.push([t[i].facet,t[i].count]); 
+				}
+				var datos =  ko.toJS(temp);
+				var data = google.visualization.arrayToDataTable(temp);
+				new google.visualization.PieChart(document.getElementById(item.id())).draw(data, {title:item.title()});	
+			}
+		});
+		// Wheel
+		var array = new Array();
+		$.each(self.filteredData(), function(index, item) {
+			var one;
+			var name = new String(item.name());
+			var resultOne = $.grep(array, function(e){ return e["name"].valueOf() == name.valueOf(); });
+			if (resultOne.length == 0) {
+				one = new Object();
+				one["name"] = name;
+				one["children"] = new Array();
+				array.push(one);
+			} else {
+				one = resultOne[0];
+			}
+			var two;
+			var polarity = new String(item.polarity_type()[0]).substring(24);
+			var resultTwo = $.grep(one["children"], function(e){ return e["name"].valueOf() == polarity.valueOf(); });
+			if (resultTwo.length == 0) {
+				two = new Object();
+				two["name"] = polarity;
+				two["children"] = new Array();
+				one["children"].push(two);
+			} else {
+				two = resultTwo[0];
+			}
+			var three = new Object();
+			three["name"] = new String(item.text());
+			var value = parseFloat(item. polarity());
+			//var hex = 5*Math.abs(value) + 250;
+			//var hexString = ("0" + hex.toString(16)).slice(-2);	
+			//console.log(hexString);
+			if (value <  -0.1) {
+				three["colour"] = "#FE2E2E";
+			} else if (value > 0.1) {
+				three["colour"] = "#2EFE2E"; 
+			} else {
+				three["colour"] = "#2E64FE"; 
+			}
+			two["children"].push(three);
+		});
+		$("#vis").fadeOut();
+		setTimeout(function() {
+			updateWheel(JSON.stringify(array));
+			$("#vis").fadeIn();
+		},300);
+		var arrayBarras = new Array();
+		$.each(self.filteredData(), function(index, item) {
+			var value = parseFloat(item. polarity());
+			if (value <  -0.1 || value > 0.1) {
+				arrayBarras.push(item. polarity());
+			}
+		});
+		$("#barras").fadeOut();
+		setTimeout(function() {
+			updateBarras(JSON.stringify(arrayBarras));
+			$("#barras").fadeIn();
+		},300);
+
+		
+
+
+
+	/*foreach(array_keys($salida) as $company){
+	$a_comp = array();
+	foreach(array_keys($salida[$company]) as $polarity){
+		$a_pol = array();
+		foreach($salida[$company][$polarity] as $tw){
+			$a_pol[]=array('name'=>$tw,'colour'=>$colores[$indice_colores]);
+		}
+		$a_comp[] = array('name'=>$polarity,'children'=>$a_pol);
+	}
+	$datos[] = array('name'=>$company,'children'=>$a_comp);
+	$indice_colores++;
+	if ($indice_colores >= sizeof($colores))$indice_colores=0; 
+	}*/
+
+		//updateWheel("../script_conversorWheel.php");
+
+		// El widget necesita todos los datos inicialmente, asi que hacerlo distinto: 
+		// cuando filtres en knockout, clickear en el widget, y viceversa
+		//wheelClickWithName(filter)
+
+	});
+
+
+
+
+	/** Autocomplete in search box (TO DO)*/
 	self.autoComplete = ko.computed(function() {
-	if(!isBlank(self.autocomplete_fieldname())){
+		if(!isBlank(self.autocomplete_fieldname())){
+			//if(!self.lightmode()){
+			/*
+				var ac_fields = new Array([]);			
+				
+				return ko.utils.arrayMap(autocompleteSOLR, function(item) {
+				if(item!=undefined) {					
+				ac_fields.push(item);
+				}
+				});
+			*/
+			
+			//console.log(self.autoCompleteFields());
+			//return self.autoCompleteFields();
+			
+			
+		//}else{
+		
 		var data = self.filteredData();
 		var ac_fieldname = self.autocomplete_fieldname();
-		console.log("ac_fieldname es: " + ac_fieldname);
-
+		var ac_fields = new Array([]);
+		
 		return ko.utils.arrayMap(data, function(item) {
 			if(item[ac_fieldname]!=undefined) {
-				//console.log(item.name());
-				return item[ac_fieldname]().toString();
+				
+				ac_fields.push(item[ac_fieldname]().toString());
 			}
 		});
-	}else{
+		
+		return ko.utils.arrayGetDistinctValues(ac_fields).sort();
+		//			}
+		}else{
 		return "";
 	}
-	},self);
+});
 
-		self.autocomplete_fieldname.subscribe(function (newValue) {
-			console.log("Nuevo valor: " + newValue);
-			Manager.doRequest();
-			
-		});		
+
+/** Twitter widget methods */
+self.twitterList = ko.computed(function() {
+	var data = self.filteredData();
 	
+	return ko.utils.arrayFilter(data, function(item) {
+		if(item.name!=undefined && self.showTwitterWidget()) {
+			////console.log(item.name().toString());
+			return item.name();
+		}
+	});
+},self);
+
+//self.twitterList = ko.observableArray(["INDRA Software Labs", "ALTRAN"]);
+ko.computed(function() {
+	twitterApi.getTweetsForUsers(self.twitterList(), self.currentTweets);
+}, self);
+
+
+/** Map widget related methods */
+self.mapLat.subscribe(function (newValue) {
+	removeMapMarkers();
+});	
+
+self.mapLong.subscribe(function (newValue) {
+	removeMapMarkers();
+});	
+
+
+/** Show/hide configuration */
+self.showConfiguration = function() {
+	var value = self.showConfigurationPanel();
+	self.showConfigurationPanel(!value);
+};
+
+/** After every Manager.doRequest method we map the new results into viewData observable */
+self.update = function() {
+	if(self.sparql()){
+		
+		}else{
+		ko.mapping.fromJS(Manager.response.response.docs, self.viewData);
+		//console.log("AUTOCOMPLETESOLR");
+		//console.log(autocompleteSOLR);
+		self.autoCompleteFields(autocompleteSOLR);
+		if(firstTime){	
+			console.log("Actualizamos widgets");
+			updateWidgets();
+			firstTime=false;
+		}			
+	}
+	
+};
+
+/** Tutorial */
+self.showHelp = function() {
+	$('#TipContent').joyride({
+		'scrollSpeed': 300,              // Page scrolling speed in ms
+		'timer': 0,                   // 0 = off, all other numbers = time(ms) 
+		'startTimerOnClick': false,       // true/false to start timer on first click
+		'nextButton': true,              // true/false for next button visibility
+		'tipAnimation': 'fade',           // 'pop' or 'fade' in each tip
+		'pauseAfter': [],                // array of indexes where to pause the tour after
+		'tipAnimationFadeSpeed': 800,    // if 'fade'- speed in ms of transition
+		'cookieMonster': false,           // true/false for whether cookies are used
+		'cookieName': 'JoyRide',         // choose your own cookie name
+		'cookieDomain': false,           // set to false or yoursite.com
+	});
+};
+
+self.newTagCloudValue = ko.observable();
+/** Open wizard for a new widget */
+self.openNewWidgetManagerMethod = function() {
+	self.openNewWidgetManager(true);
+};
+
+/** Widget's editing title function */
+self.editTitle = function(title) {
+	self.editingTitle(title);
+};
+
+/** To change field of tagcloudwidget dynamically (not used ATM) */	
+self.selectionChanged = function(event) {
+	//alert("New value: " + this.field());  
+	// Borramos todos los filtros previos
+	Manager.store.remove('fq');		 
+	
+	var field = this.field();
+	
+	var params = {
+		facet: true,
+		'facet.field': field,
+		'facet.limit': 20,
+		'facet.sort': 'count',
+		'facet.mincount': 1,
+		'json.nl': 'map'
+	};
+	
+	for (var name in params) {
+		Manager.store.addByValue(name, params[name]);
+	}
+	
+	if(self.lightmode()){
+		updateWidgets();
+		}else{
+		//Manager.store.remove('fq');
+		//updateSolrFilter();
+		//Manager.doRequest();
+		//firstTime=true;
+	}		 
+};	
+
+/** Adding a new TagCloudWidget */
+self.addTagCloudWidget = function() {
+	
+	var id = Math.floor(Math.random() * 10001);
+	var field = self.newTagCloudValue();
+	
+	id_obs = ko.observable(id);
+	field_obs = ko.observable(field);
+	self.activeWidgets.push({"id":ko.observable(id),"title": ko.observable("Nuevo Widget"), "type": ko.observable("tagcloud"), "field": ko.observable(self.newTagCloudValue()),"collapsed": ko.observable(false),"values":ko.observableArray()});
+	
+	var params = {
+		facet: true,
+		'facet.field': field,
+		'facet.limit': 20,
+		'facet.sort': 'count',
+		'facet.mincount': 1,
+		'json.nl': 'map'
+	};
+	
+	for (var name in params) {
+		Manager.store.addByValue(name, params[name]);
+	}
+	
+	if(self.lightmode()){
+		updateWidgets();
+		}else{
+		Manager.store.remove('fq');
+		Manager.doRequest();
+		firstTime=true;
+	}
+};
+
+/** Save button */
+self.doSave = function() {
+	saveConfiguration();
+};
+
+routes();
+
+/** Depending on the html route, redirect to a setup screen or directly to visualization screen */
+function routes(){
+	if(self.serverURL() == ""){
+		self.page(4);
+		}else{
+		
+		// Client-side routes    
+		sammyPlugin = $.sammy(function() {
+			this.bind('redirectEvent', function(e, data) {
+				this.redirect(data['url_data']);
+			});
+			
+			this.get('#/main', function(context) {
+				console.log("ERROR");
+				
+				setupMethod();
+				self.page(3);
+			});
+			
+			this.get('#/main/:coreId', function() {
+				self.core(this.params.coreId);
+				coreSelected = this.params.coreId;
+				
+				var solr_baseURL = serverURL + 'solr/' + self.core() + '/';
+				self.solr_baseURL(solr_baseURL);
+				
+				/** Cargamos la configuración para el core dado */
+				loadCore();			
+			});
+			
+			this.get('#/sparql', function() {
+				self.sparql = ko.observable(true);
+				self.lightmode = ko.observable(true);		
+				
+				init();
+			});
+			
+			this.get('#/graph/:coreId', function(context) {
+				
+				
+			});
+			this.notFound = function(){
+				console.log("RUTA NO ENCONTRADA");
+				self.page(1);
+			}			
+		}).run('#/main'); 
+	}
+}
+
+/** Error window asking user to select a core */
+function setupMethod() {
 	/*
-	self.twitterList = ko.computed(function() {
-		var data = self.filteredData();
-
-		return ko.utils.arrayFilter(data, function(item) {
-			if(item.name!=undefined) {
-				//console.log(item.name().toString());
-				return item.name();
-			}
-		});
-	},self);
-*/
-	//self.twitterList = ko.observableArray(["INDRA Software Labs", "ALTRAN"]);
-   	//ko.computed(function() {
-        //	twitterApi.getTweetsForUsers(self.twitterList(), self.currentTweets);
-    	//}, self);
-
-
-	self.filteredData.subscribe(function (newValue) {
-		removeMapMarkers();
+		$.ajax({
+		url: self.serverURL() + 'solr/cores',
+		success: function(data){
+		console.log(data);
+		var array = JSON.parse(data);
+		console.log(array);
+		self.listCores(array);
+		//console.log(data);
+		},error: function() {
+		//console.log("error");			
+		}
+		});	
+	*/
+	$.getJSON(self.serverURL() + 'solr/cores', function(data) { 
+		self.listCores(data);
 	});
 	
-	self.mapLat.subscribe(function (newValue) {
-		removeMapMarkers();
-	});	
-	
-	self.mapLong.subscribe(function (newValue) {
-		removeMapMarkers();
-	});	
-	
-	$('#configuration').hide();
+	self.start = function (){
+		location.hash = '#/main/' + self.core();
+		window.location.reload();
+	}
+};
 
-	// Cargamos la configuración para el core
-	loadConfiguration(core);
+/** If core exists, go to loadConfiguration method. Otherwise, show an error */
+function loadCore() {
+	$.getJSON(self.solr_baseURL() + "admin/luke?show=schema&wt=json",function(data){                    
+		loadConfiguration();
+	}).error(function() { self.page(2); setupMethod(); });
+};
 
-
-	// Comportamiento para mostrar/ocultar la configuración general
-	self.configure = function() {
-		//console.log("Response docs: " + Manager.response.response.docs);
-		//ko.mapping.fromJS(Manager.response.response.docs, self.viewData);
-		//console.log('The length of the Data is ' + self.viewData().length);
-                console.log("Titulo: " + self.pageTitle());
-               if ($('#configuration').is(":hidden"))
-               {
-                    $('#configuration').slideDown("slow");
-               } else {
-                    $('#configuration').slideUp("slow");
-               }
-
-	};
-	
-	self.update = function() {
-		console.log("Actualizamos array visible");
-		ko.mapping.fromJS(Manager.response.response.docs, self.viewData);
-		
-		
-		
-	};
-	
-	self.updateTagCloud = function() {
-		
-	};
-
-	self.addWidget = function() {
-		console.log("boton clicado");
-  		iNettuts.addWidget("#column0tab0", {
-			id: Math.floor(Math.random() * 10001),
-    			color: "color-blue",			
-    			title: "Nuevo widget",
-			type: "tagcloud"
-  		})		
-	};
-
-
-
-	self.doSave = function() {
-		iNettuts.saveAllPreferences();
-		//saveConfiguration(core, self.baseURL());	
-	};
-
-        // Carga la configuración para un Core dado
-        function loadConfiguration(core) {
-	        $.ajax({
-                   url:"http://shannon.gsi.dit.upm.es/episteme/lmf/config/data/search.config."+core,
-                   success: function(data){
-                   	configuration = JSON.parse(data['search.config.'+core]);
-                   	console.log("Carga con éxito");
-	           	var data = JSON.stringify(configuration).replace(/"/g,"\"").replace(/,/g,"\\,");
-	           	//alert(JSON.stringify([data]));
-			console.log(JSON.stringify([data]));
-
+/** Load configuration for a given core */
+function loadConfiguration(){
+	$.ajax({
+		url: "http://shannon.gsi.dit.upm.es/episteme/lmf/config/data/search.config." + self.core(),
+		success: function(data){
+			
+			configuration = JSON.parse(data['search.config.'+self.core()]);
+			
 			for (var i = 0; configuration.widgets.length > i; i++) {	
-				self.widgetsActivos().push({ name: configuration.widgets[i].name, field: configuration.widgets[i].field , id: configuration.widgets[i].id, color: configuration.widgets[i].color, type: configuration.widgets[i].type, collapsed: configuration.widgets[i].collapsed, col: configuration.widgets[i].col, query: configuration.widgets[i].query});
+				templateWidgets.push({ id: configuration.widgets[i].id, title: configuration.widgets[i].title, type: configuration.widgets[i].type,field: configuration.widgets[i].field , collapsed: configuration.widgets[i].collapsed, query: configuration.widgets[i].query, value: [], values: []});
 			}
-
-			//var resultados = ko.toJS(configuration.results.resultsLayout);
-			var data = ["HOLA", "ADIOS"];
-			ko.mapping.fromJS(data, self.results2Layout());
-
-		ko.utils.arrayFilter(self.results2Layout(), function(itm) {
-			console.log("resultsLayout " + itm);
-		});
-			//nsole.log("CONFIG CARGADO: " + self.resultsLayout()[3].Value);
-
-			//self.resultsLayout().push({title: configuration.results.title, subtitle: configuration.results.subtitle, link: configuration.results.link, description: configuration.results.description, image: configuration.results.image});
-			
-//self.resultsLayout().push([configuration.results.title], [configuration.results.subtitle], [configuration.results.link], [configuration.results.description], [configuration.results.image]);
-			//var titulosaved = configuration.results.title;
-			//console.log("Titulo saved: " + titulosaved);
-			
-			
-			
-			//for (var i = 0; configuration.results.extra.length > i; i++) {	
-			//	self.layoutResultsExtraItems().push(configuration.results.extra[i]);
-				//console.log("EXTRA: " + self.layoutResultsExtraItems()[i]);
-			//}
-
-	widget_semantic_fields = '<select class="widget_field">';
-	// Primer valor vacío
-	semantic_option_fields = '<option></option>';
-
-	// Cargamos los semantic_fields
-	$.getJSON(configuration.baseURL + "admin/luke?show=schema&wt=json",function(data){                    
-                    for (var field in data.schema.fields) {
-                        //semantic_fields.push({name:field, value:data.schema.fields[field]});
-			semantic_option_fields += '<option value="'+field+'">'+ field+'</option>';                
-			widget_semantic_fields += '<option value="'+field+'">'+ field+'</option>';
-			//if(data.schema.fields[field].type=='rgbColor') color=true;
-		   	//console.log("FIELDS: " + field);
-					
-			// VALOR BUENO
-			self.semantic_fields.push(field);
-               	    }
-
-			widget_semantic_fields += '</select></li>';
-		//console.log("Widget semantic fields: " + widget_semantic_fields);
 			
 			init();
-			//return widget_semantic_fields;
-              });
-                   },
-                    error: function() {
-			widget_semantic_fields = '<select class="widget_field"></select>'
-			console.log("Error al cargar la configuración");
-                        init();
-			
-                    }
-                });
-           };
+		},
+		error: function() {
+			init();			
+		}
+	});
+};
 
 function init(){
 	
-	// URL cargada	
-	self.baseURL(configuration.baseURL);
-	self.pageTitle(configuration.layout.pageTitle);
-	self.logoPath(configuration.layout.logoPath);
-	self.sparql_baseURL(configuration.sparql_baseURL);
-	self.selectedLanguage(configuration.language);
-	//self.autocomplete_fieldname(configuration.autocomplete.field);
-
-   // Widget de resultados
-	/*
-   	iNettuts.addWidget("#column1tab0", {
-		id: "0",
-   		color: configuration.results.wcolor,			
-   		title: configuration.results.wtitle,
-		type: configuration.results.wtype,
-		collapsed: configuration.results.wcollapsed,
-		content: "Personaliza tu contenido " + i
-   	})
-   	*/
+	self.page(0);
 	
-	var currentVal = self.baseURL();
-	console.log("solrURL: " + currentVal);
-
+	/** Update values from loaded (or not) configuration */
+	/** Endpoint variables */
+	
+	var sparql_baseURL = self.serverURL() + 'sparql/select';
+	self.sparql_baseURL(sparql_baseURL);
+	
+	/** Overriding some template variables */
+	self.pageTitle(configuration.template.pageTitle);
+	self.logoPath(configuration.template.logoPath);
+	self.showMapWidget = ko.observable(configuration.template.showMapWidget);
+	self.showResultsWidget = ko.observable(configuration.template.showResultsWidget);
+	self.resultsWidget = ko.mapping.fromJS(configuration.results);
+	self.resultsLayout = ko.mapping.fromJS(configuration.results.resultsLayout);
+	self.selectedLanguage(configuration.template.language);	
+	
+	self.activeWidgets = ko.mapping.fromJS(templateWidgets);
+	
+	var currenturl = self.solr_baseURL();
+	
 	// Inicializamos el manager
-        Manager = new AjaxSolr.Manager({
-        	solrUrl: currentVal
-    	});
+	Manager = new AjaxSolr.Manager({
+		solrUrl: currenturl
+	});
 	
-    Manager.addWidget(new AjaxSolr.ResultWidget({
-      id: 'result',
-      target: ''
-    }));
-
-    Manager.addWidget(new AjaxSolr.PagerWidget({
-      id: 'pager',
-      target: '#pager',
-      prevLabel: '&lt;',
-      nextLabel: '&gt;',
-      innerWindow: 1,
-      renderHeader: function (perPage, offset, total) {
-        $('#pager-header').html($('<span/>').text('Viendo resultados del ' + Math.min(total, offset + 1) + ' al ' + Math.min(total, offset + perPage) + ' de un total de ' + total));
-      }
-    }));
-
-    var widgets = self.widgetsActivos();
-
-    var fields = [];
-    for(var i=0;i<widgets.length;i++) {
-        fields.push(widgets[i].field);
-    }
-
-    for (var i = 0, l = fields.length; i < l; i++) {
-	// Le añadimos un f al final    
-	var target = widgets[i].id + 'f';
-
-      Manager.addWidget(new AjaxSolr.TagcloudWidget({
-        id: i,
-        target: '#' + target,
-        field: fields[i],
-	  }));
-  
-    }
-
-/*
-    Manager.addWidget(new AjaxSolr.DropDownParamWidget({
-      id: 'sort',
-      param: 'sort',
-      target: 'select.sort'
-    }));
-*/
-	Manager.addWidget(new AjaxSolr.CurrentSearchWidget({
-		id: 'currentsearch',
-  		target: '#currentselection',
+	/** If autocomplete field changes, do a new Request so we have data for autocomplete purposes */
+	self.autocomplete_fieldname.subscribe(function (newValue) {
+		Manager.doRequest();
+	});		
+	
+	
+	Manager.addWidget(new AjaxSolr.ResultWidget({
+		id: 'result',
+		target: ''
 	}));
-
-// TO DO
-/*
-	Manager.addWidget(new AjaxSolr.TextWidget({
-  		id: 'text',
-  		target: '#search'
-  		//fields: ['name', 'province']
+	
+	Manager.addWidget(new AjaxSolr.PagerWidget({
+		id: 'pager',
+		target: '#pager',
+		prevLabel: '&lt;',
+		nextLabel: '&gt;',
+		innerWindow: 1,
+		renderHeader: function (perPage, offset, total) {
+			$('#pager-header').html($('<span/>').text('Viendo resultados del ' + Math.min(total, offset + 1) + ' al ' + Math.min(total, offset + perPage) + ' de un total de ' + total));
+		}
 	}));
-*/
-
-
-Manager.addWidget(new AjaxSolr.AutocompleteWidget({
-  id: 'text',
-  target: '#search',
-  fields: ['name']
-}));
-
-    Manager.init();
-    Manager.store.addByValue('q', '*:*');
-
-    //Manager.store.addByValue('fq', 'type:"Pequeña y mediana empresa" OR type:"Universidad" OR type:"Otros"');
-
-
-    var params = {
-      facet: true,
-      'facet.field': fields,
-      'facet.limit': 10,
-      'facet.sort': 'count',
-      'facet.mincount': 1,
-      'json.nl': 'map'
-    };
-
-    for (var name in params) {
-      Manager.store.addByValue(name, params[name]);
-    }
-    
-    Manager.doRequest();
 	
-    mostrarWidgets();
-	
-// Client-side routes    
-sammyPlugin = $.sammy(function() {
-		this.bind('redirectEvent', function(e, data) {
-       	        this.redirect(data['url_data']);
-    	});
-
-        this.get('#/main', function(context) {
-			self.page(0);
-		});
-
-		this.get('#/graph', function(context) {
-			
-			$("#column0tab1").empty();
-			$("#column1tab1").empty();
-		for (var i = 0, l = self.tagclouditems().length; i < l; i++) {
-			console.log("i es: " + i);
-			
-			var iden = Math.floor(Math.random() * 10001);
-			iNettuts.addWidget("#column0tab1", {
-				id: iden,
-    			color: "color-blue",			
-    			title: "Nuevo gráfico",
-				type: "sgvizler_auto",
-			})
-			
-			//console.log("Data es: " + self.tagclouditems()[i].values);
-
-			//tagclouditems es:
-			// {type: "province", values: { [Madrid,0], [Barcelona,5], [Sevilla, 4]...} }
-			
-			var data = ko.toJS(self.tagclouditems()[i].values());
-			var graph = google.visualization.arrayToDataTable(data);
-
-			// Create and draw the visualization.
-		
-			new google.visualization.PieChart(document.getElementById(iden+'f')).draw(graph, {title:"Ejemplo"});	
-		}			
-			
-			self.page(1);
-		});
-		
-}).run('#/main'); 	
-			
-}
-
-
-function mostrarWidgets(){  
-   
-    var widgets = self.widgetsActivos();
-
-	// Widgets que añadimos dinámicamente
-    for (var i = 0; widgets.length > i; i++) {
-
-    	iNettuts.addWidget("#" + widgets[i].col, {
-		id: widgets[i].id,
-    	color: widgets[i].color,			
-    	title: widgets[i].name,
-		field: widgets[i].field,
-		type: widgets[i].type,
-		collapsed: widgets[i].collapsed,
-		query: HtmlEncode(widgets[i].query),
-		content: "Personaliza tu contenido " + i
-    	})
-    }
-
-
-}
-
-}
-
-// Guardar configuración tras pulsar el botón correspondiente
-function saveConfiguration(core,refreshpage){
-	console.log("sparql BASEURL ES: " + vm.baseURL());
-		configuration.baseURL = vm.baseURL();
-		configuration.sparql_baseURL = vm.sparql_baseURL();
-		configuration.layout.pageTitle = vm.pageTitle();
-		configuration.layout.logoPath = vm.logoPath();
-		configuration.language = vm.selectedLanguage();
-
-		configuration.results.resultsLayout = ko.mapping.toJS(vm.resLayout());
-
-/*
-		configuration.results.title =  vm..val();  
-		configuration.results.subtitle =  $("#result_conf_subtitle").val();
-		configuration.results.link =  $("#result_conf_link").val();
-		configuration.results.description =  $("#result_conf_description").val();
-		configuration.results.image =  $("#result_conf_image").val();
-*/
-               var data = JSON.stringify(configuration).replace(/"/g,"\"").replace(/,/g,"\\,");
-               //alert(JSON.stringify([data]));
-		console.log(JSON.stringify([data]));
-
-               $.ajax({
-                    type:"POST",
-                    url:"http://shannon.gsi.dit.upm.es/episteme/lmf/config/data/search.config." + core,
-                    data:JSON.stringify([data]),
-                    contentType:"application/json; charset=utf-8",
-                    dataType:"json",
-                    success: function(data){
-			console.log("Configuración guardada");
-			alert("Configuración guardada");
-			if(refreshpage){
-				window.location.reload();
-			}
-                        //alert("Configuración guardada!");
-                    },
-                    error: function() {
-                        //alert("Error al guardar la configuración");
-                    }
-                });
-}
-
-// Cuando hay algún cambio editando los widgets
-function updateWidget(id, target, field){
-   //var queryText = $("#query").val();
-
-   //if(queryText=="") queryText = "*:*";
-
-	//console.log("widget id: " + id);
-	//console.log("widget target: " + target);
-	//console.log("widget field: " + field);
-
-      Manager.addWidget(new AjaxSolr.TagcloudWidget({
-        id: id,
-        target: '#' + target,
-        field: field
-      }));
-
-    Manager.store.addByValue('q', '*:*');
-
-    var params = {
-      facet: true,
-      'facet.field': field,
-      'facet.limit': 10,
-      'facet.sort': 'count',
-      'facet.mincount': 1,
-      'json.nl': 'map'
-    };
-
-    for (var name in params) {
-      Manager.store.addByValue(name, params[name]);
-    }
-
-    Manager.doRequest();
-
-}
-
-function getResultsSPARQL(sparql_query){
 	/*
-	$('#docs').empty();
-	$('#results_sparql').empty();
-	$('#pager').empty();	
-	$('#pager-header').hide();
-	$('.seleccion_actual').hide();		
-*/
-	var queryText = sparql_query;	
-	queryText = encodeURIComponent(queryText);
-	queryText = decodeURIComponent(queryText);
-
-  	$.ajax({	
-  		type: 'GET',
-  		url: vm.sparql_baseURL(),
-  		data: { query: queryText, output: 'json' },
-  		beforeSend: function(){
-  		// Validación
-		$('#loading').show();
-  	},
-  	complete: function(){
-     		$('#loading').hide();
-  	},
-  	success: function(data) {    
-    		// get the table element
-    		var table = $("#results_sparql");              
-
-    		// get the sparql variables from the 'head' of the data.
-    		var headerVars = data.head.vars; 
-
-    		// using the vars, make some table headers and add them to the table;
-    		var trHeaders = getTableHeaders(headerVars);
-    		table.append(trHeaders);  
-
-    		// grab the actual results from the data.                                          
-    		var bindings = data.results.bindings;
-			$('#pager-header').html($('<span/>').text('Viendo ' + bindings.length + ' resultados')).show();
-    		console.log("Número resultados: " + bindings.length);
-			
-			//var bindings = data.results.bindings;
-			//ko.mapping.fromJS(bindings, vm.viewData);
-			
-    		// for each result, make a table row and add it to the table.
-    		for(rowIdx in bindings){
-      			table.append(getTableRow(headerVars, bindings[rowIdx]));
-    		} 
-
-  	},
-  	error: function() {
-		$('#docs').append("Consulta fallida");  
-  	}
-  	});   
-}
-
-
-function getSemanticFields(){
-	var currentVal = configuration.baseURL;
-
-}
-
-       function Popup(title,type) {
-
-           if(!type) type="normal";
-
-           var self = this;
-
-           var template = "<div style='display:none' id='popup'><h1 id='popup_title' class='popup_title_"+type+"'>Test</h1><div id='popup_content'></div><div id='popup_buttons'></div></div>"
-
-            $("#background-black").show();
-            var box = $(template);
-             $('body').append(box);
-             $("#popup_title").text(title);
-
-           this.appendContent = function(content) {
-               $("#popup_content").append(content);
-           }
-
-           this.appendButton = function(button) {
-               $("#popup_buttons").append(button);
-           }
-
-           this.close = function() {
-               $("#popup").remove();
-              $("#background-black").hide();
-           }
-           this.show = function() {
-               box.show();
-           }
-
-       }
-
-
-function addRow(i){
+		Manager.addWidget(new AjaxSolr.DropDownParamWidget({
+		id: 'sort',
+		param: 'sort',
+		target: 'select.sort'
+		}));
+		Manager.addWidget(new AjaxSolr.CurrentSearchWidget({
+		id: 'currentsearch',
+		target: '#currentselection',
+		}));
+	*/
 	
-	console.log("Valor de i: " + i_layoutresultsextra);
-	$("#layout").append("<tr><td>Campo extra</td><td><select id='result_conf_extra"+i_layoutresultsextra+"'>"+semantic_option_fields+"</select></td></tr>");
+	Manager.addWidget(new AjaxSolr.AutocompleteWidget({
+		id: 'text',
+		target: '#search',
+		fields: ['name']
+	}));
+	
+	Manager.init();
+	Manager.store.addByValue('q', '*:*');
+	
+	mostrarWidgets();	
+	
+};
 
-}
-/*
-function showDynamicRows(){
-	var result = '';
 
-	for(var i=0; i<=vm.layoutResultsExtraItems().length;i++) {
-		var index = i+1;
-		result += "<tr><td>EXTRA</td><td><select id='result_conf_extra+'" + index + "'>"+semantic_option_fields+"</select></td></tr>";
-		$("#result_conf_extra").val(vm.layoutResultsExtraItems()[index]);
-		console.log("EXTRA: " + vm.layoutResultsExtraItems()[index]);
-	}
-	return result;
-}
-*/
-function editResultsLayoutold() {
-		//vm.isOpen(true);
-
-// Cambios en tiempo real
-/*
-            var popup = new Popup("Editar Layout");
-
-			i_layoutresultsextra = vm.layoutResultsExtraItems().length;
-
-			var doc = $("<table id=layout>"
-                            +"<tr><td>Título</td><td><select id='result_conf_title'>"+semantic_option_fields+"</select></td></tr>"
-      			    +"<tr><td>Subtítulo</td><td><select id='result_conf_subtitle'>"+semantic_option_fields+"</select></td></tr>"
-                            +"<tr><td>Enlace</td><td><select id='result_conf_link'>"+semantic_option_fields+"</select></td></tr>"                            
-			    +"<tr><td>Imagen</td><td><select id='result_conf_image'>"+semantic_option_fields+"</select></td></tr>"                            				    +"<tr><td>Descripción</td><td><select id='result_conf_description'>"+semantic_option_fields+"</select></td></tr>"
-			    + showDynamicRows()
-                            +"</table>"
-			    +"<button onclick='i_layoutresultsextra++; addRow(i_layoutresultsextra);'>Añadir otra fila</button>");
-
-                    //fill configuration
-                    popup.appendContent(doc);
-		    
-		    var old_title = configuration.results.title;
-		    var old_subtitle = configuration.results.subtitle;
-		    var old_link = configuration.results.link;
-		    var old_description = configuration.results.description;
-	            var old_image = configuration.results.image;
-
-                    $("#result_conf_title").val(configuration.results.title);
-                    $("#result_conf_subtitle").val(configuration.results.subtitle);
-                    $("#result_conf_link").val(configuration.results.link);
-                    $("#result_conf_description").val(configuration.results.description);
-                    $("#result_conf_image").val(configuration.results.image);
-                    //$("#result_conf_thumb").val(configuration.results.thumb);
-			
-			$('select').click(function () {
-				updateResultsWidget();	
-				return false;		
-			});
-
-                    var close = $("<button></button>").text("Cancelar").click(function(){
-			
-			configuration.results.title =  old_title;  
-			configuration.results.subtitle =  old_subtitle;
-			configuration.results.link =  old_link;
-			configuration.results.description =  old_description;
-			configuration.results.image =  old_image;
-
-			updateResultsWidget("true");
-                        popup.close();
-
-                    });
-                    var ok = $("<button></button>").text("Aceptar").click(function(){
-
-                        //configuration.results.thumb =  $("#result_conf_thumb").val();	
-			
-			updateResultsWidget();
-			popup.close();  
-                    });
-
-                    popup.appendButton(close);
-                    popup.appendButton(ok);
-		    popup.show();
-
-*/
+// Termina el modelo 
 }
 
-function updateResultsWidget(cancel){
 
-//for (var facet in Manager.response.facet_counts.facet_fields["province"]) {
-//}
-
-	if(cancel){
-
-	}else{
-		configuration.results.title =  $('#result_conf_title').val();  
-		configuration.results.subtitle =  $("#result_conf_subtitle").val();
-		configuration.results.link =  $("#result_conf_link").val();
-		configuration.results.description =  $("#result_conf_description").val();
-		configuration.results.image =  $("#result_conf_image").val();
-
-		for(var i=1; i<=i_layoutresultsextra;i++) {
-			var wgt = $('#result_conf_extra'+i).val();
-			configuration.results.extra.push(wgt);
-			console.log("dentro del for");
-			console.log("wgt vale: " + wgt);
+/** Add params to solr query so we can fill tagcloud widgets */
+function mostrarWidgets(){
+	var widgets = vm.activeWidgets();
+	var fields = [];
+	
+	for(var i=0;i<widgets.length;i++) {
+		
+		if(widgets[i].type()=="tagcloud"){
+			fields.push(widgets[i].field());
 		}
 	}
-
-    $("#docs").empty();
-    for (var i = 0, l = Manager.response.response.docs.length; i < l; i++) {
-      var doc = Manager.response.response.docs[i];
-      $("#docs").append(AjaxSolr.theme('result', doc, AjaxSolr.theme('snippet', doc)));
-    }
+	
+	var params = {
+		facet: true,
+		'facet.field': fields,
+		'facet.limit': 20,
+		'facet.sort': 'count',
+		'facet.mincount': 1,
+		'json.nl': 'map'
+	};
+	
+	for (var name in params) {
+		Manager.store.addByValue(name, params[name]);
+	}
+	
+	Manager.doRequest();
+	
 }
 
-function checkBoxSearch(){
-	alert("Hola");
-}
-
-function graphWidgetWizard(){
-
-            var popup = new Popup("Configuración del widget");
-
-			var doc = $('<p><input id="sgvizlerQuery" type="text" placeholder="sgvizlerQuery" size="300"></input> </p>');
-
-           //fill configuration
-           popup.appendContent(doc);
-
-				var close = $("<button></button>").text("Cancelar").click(function(){
-                        popup.close();
-
-                    });
-				var ok = $("<button></button>").text("Aceptar").click(function(){
-
-					var sgvizlerQuery = $('#sgvizlerQuery').val();
-					
-					refreshpage = true;
-					iNettuts.addWidget("#column0tab0", {
-						id: Math.floor(Math.random() * 10001),
-						color: "color-blue",			
-						title: "Nuevo widget",
-						type: "sgvizler",
-						query: HtmlEncode(sgvizlerQuery)
-					})		
+/** Load static graph widgets (sgvizler) */
+function loadSgvizler(){
+	var widgets = vm.activeWidgets();
+	
+	for(var i=0;i<widgets.length;i++) {
 		
-					iNettuts.saveAllPreferences();
-		
-					popup.close();  
-					
-					
-                 });
-
-				popup.appendButton(close);
-				popup.appendButton(ok);
-				popup.show();		   
-
+		if(widgets[i].type()=="sgvizler"){
+			vm.activeWidgets()[i].value('<div id="'+widgets[i].id()+'_sgvizler" data-sgvizler-endpoint="'+ vm.sparql_baseURL() +'"?" data-sgvizler-query="'+widgets[i].query()+'" data-sgvizler-chart="gPieChart" data-sgvizler-loglevel="0" data-sgvizler-chart-options="is3D=true|title=Number of instances" style="width:300px; height:200px; background:#fff; display:inline;"></div>');
+		}
+	}
+	
 }
 
-function HtmlEncode(s)
-{
-  var el = document.createElement("div");
-  el.innerText = el.textContent = s;
-  s = el.innerHTML;
-  return s;
+/** Save configuration */
+function saveConfiguration(refreshpage){
+	
+	configuration.endpoints.serverURL = serverURL;
+	configuration.template.pageTitle = vm.pageTitle();
+	configuration.template.logoPath = vm.logoPath();
+	configuration.template.language = vm.selectedLanguage();
+	configuration.other.available_languages = vm.languages();
+	configuration.results = ko.mapping.toJS(vm.resultsWidget);
+	configuration.results.resultsLayout = ko.mapping.toJS(vm.resultsLayout());
+	
+	configuration.widgets = ko.toJS(vm.activeWidgets);
+	
+	var data = JSON.stringify(configuration).replace(/"/g,"\"").replace(/,/g,"\\,");
+	//alert(JSON.stringify([data]));
+	//console.log(JSON.stringify([data]));
+	
+	$.ajax({
+		type:"POST",
+		url: "http://shannon.gsi.dit.upm.es/episteme/lmf/config/data/search.config." + coreSelected,
+		data:JSON.stringify([data]),
+		contentType:"application/json; charset=utf-8",
+		dataType:"json",
+		success: function(data){
+			
+			if(refreshpage){
+				window.location.reload();
+				}else{
+				$.blockUI.defaults.growlCSS.top = '30px'; 
+				$.growlUI('¡Configuración guardada!', ''); 	
+			}
+			
+			// http://jquery.malsup.com/block/#options
+		},
+		error: function() {
+			alert("Error al guardar la configuración");
+		}
+	});
+}
+
+/** Update solr query when a tag is clicked (depending on its state) */
+function updateSolrFilter() {
+	// Borramos todos los filtros previos
+	Manager.store.remove('fq');
+	
+	var tempString = "";
+	var i = 0;
+	$.each(vm.activeWidgets(), function(index1, item1) {
+		i = 0;
+		tempString = "";
+		var catParent = item1.field();
+		$.each(item1.values(), function(index2, item2) {
+			if(item2.state() == true){
+				if(i==0){
+					tempString += catParent + ':"' + item2.name() + '"';
+					i++;
+				}else{
+					tempString += ' OR ' + catParent + ':"' + item2.name() + '"';
+				}
+			}
+		});
+		Manager.store.addByValue('fq', tempString);
+	});
+	Manager.doRequest();
+}
+
+function HtmlEncode(s){
+	var el = document.createElement("div");
+	el.innerText = el.textContent = s;
+	s = el.innerHTML;
+	return s;
 }
 
 function isBlank(str) {
-    return (!str || /^\s*$/.test(str));
+	return (!str || /^\s*$/.test(str));
+}
+
+function countElement(item,array) {
+	var count = 0;
+	$.each(array, function(i,v) { if (v === item) count++; });
+	return count;
 }
 
 ko.utils.stringStartsWith = function(string, startsWith) {
-    string = string || "";
-
-    if (startsWith.length > string.length) return false;
-    return string.substring(0, startsWith.length) === startsWith;
+	string = string || "";
+	
+	if (startsWith.length > string.length) return false;
+	return string.substring(0, startsWith.length) === startsWith;
 };
 
 //extend the observableArray object
 
-    ko.observableArray.fn.sortByPropertyAsc = function(prop) {
+ko.observableArray.fn.sortByPropertyAsc = function(prop) {
 	
-        this.sort(function(obj1, obj2) {
+	this.sort(function(obj1, obj2) {
+		
+		if(obj1[prop]!=undefined && obj2[prop]!=undefined){
+			//console.log("Distinto de undefined");
+			if (obj1[prop]().toString().toLowerCase() == obj2[prop]().toString().toLowerCase())
+			return 0;
+			else if (obj1[prop]().toString().toLowerCase() < obj2[prop]().toString().toLowerCase())
+			return -1;
+			else
+			return 1;
+			}else{
+			//console.log("Undefined");
+			return 1;	
+		}
+	});
+}
 
-	if(obj1[prop]!=undefined && obj2[prop]!=undefined){
-		console.log("Distinto de undefined");
-            if (obj1[prop]().toString().toLowerCase() == obj2[prop]().toString().toLowerCase())
-                return 0;
-            else if (obj1[prop]().toString().toLowerCase() < obj2[prop]().toString().toLowerCase())
-                return -1;
-            else
-                return 1;
-	}else{
-		console.log("Undefined");
-		return 1;	
-	}
-        });
-   }
+ko.utils.stringContains = function(string, contain) {
+	string = string.toLowerCase();
+	contain = contain.toLowerCase().replace(/^\s\s*/, '').replace(/\s\s*$/, '').split(" ").join("|");
+	string = string || "";
+	//if (contain.length > string.length) return false;
+	var regex = new RegExp(""+contain+"");
+	//console.log(contain);
+	return string.search(regex) !== -1
+};   
+
+ko.observableArray.fn.sortByPropertyCat = function(prop) {
+	this.sort(function(obj1, obj2) {
+		if (obj1[prop]() == obj2[prop]())
+		return 0;
+		else if (obj1[prop]() < obj2[prop]())
+		return -1;
+		else
+		return 1;
+	});
+}   
 
 function createMap(){    
-    var elevator;
-    var myOptions = {
-        zoom: 3,
-        center: new google.maps.LatLng(40.24, -3.41),
-        mapTypeId: 'terrain'
-    };
-    map = new google.maps.Map($('#map')[0], myOptions);
+	var elevator;
+	var myOptions = {
+		zoom: 3,
+		center: new google.maps.LatLng(40.24, -3.41),
+		mapTypeId: 'terrain'
+	};
+	map = new google.maps.Map($('#map')[0], myOptions);
 }
-   
+
 function removeMapMarkers(){
 	for (var i = 0; i < markers.length; i++) {
-    	var marker = markers[i];
-    	marker.setMap(null);
-  	}
-  	
+		var marker = markers[i];
+		marker.setMap(null);
+	}
+	
 	markers = [];  
 }
-   
+
 ko.bindingHandlers.map = {
-            init: function (element, valueAccessor, allBindingsAccessor, viewModel) {
-                var position = new google.maps.LatLng(allBindingsAccessor().latitude, allBindingsAccessor().longitude);
+	init: function (element, valueAccessor, allBindingsAccessor, viewModel) {
+		var position = new google.maps.LatLng(allBindingsAccessor().latitude, allBindingsAccessor().longitude);
+		
+		var marker = new google.maps.Marker({ 
+			map: allBindingsAccessor().map,
+			position: position,
+			title: allBindingsAccessor().title.toString()
+		});
+		
+		markers.push(marker);
+		viewModel._mapMarker = marker;
+	},
+	update: function (element, valueAccessor, allBindingsAccessor, viewModel) {
+		var latlng = new google.maps.LatLng(allBindingsAccessor().latitude, allBindingsAccessor().longitude);
+		//console.log("UPDATE EN: " + allBindingsAccessor().latitude);
+		viewModel._mapMarker.setPosition(latlng);
+		
+	}
+};
 
-                var marker = new google.maps.Marker({ 
-				map: allBindingsAccessor().map,
-                    position: position,
-                    title: allBindingsAccessor().title.toString()
-                });
 
-				markers.push(marker);
-                viewModel._mapMarker = marker;
-            },
-            update: function (element, valueAccessor, allBindingsAccessor, viewModel) {
-                var latlng = new google.maps.LatLng(allBindingsAccessor().latitude, allBindingsAccessor().longitude);
-				console.log("UPDATE EN: " + allBindingsAccessor().latitude);
-                viewModel._mapMarker.setPosition(latlng);
+ko.bindingHandlers.sortable = {
+	init: function (element, valueAccessor) {
+		// cached vars for sorting events
+		var startIndex = -1,
+		koArray = valueAccessor();
+		
+		var sortableSetup = {
+			// cache the item index when the dragging starts
+			start: function (event, ui) {
+				startIndex = ui.item.index();
 				
-            }
-        };
+				// set the height of the placeholder when sorting
+				ui.placeholder.height(ui.item.height());
+			},
+			// capture the item index at end of the dragging
+			// then move the item
+			stop: function (event, ui) {
+				
+				// get the new location item index
+				var newIndex = ui.item.index();
+				
+				if (startIndex > -1) {
+					//  get the item to be moved
+					var item = koArray()[startIndex];
+					
+					//  remove the item
+					koArray.remove(item);
+					
+					//  insert the item back in to the list
+					koArray.splice(newIndex, 0, item);
+					
+					//  ko rebinds the array so we need to remove duplicate ui item
+					ui.item.remove();
+				}
+				
+			},
+			placeholder: 'widget-placeholder',
+			forcePlaceholderSize: true,
+			revert: 300,
+			delay: 100,
+			opacity: 0.8
+		};
+		
+		// bind
+		$(element).sortable( sortableSetup );  
+	}
+};		
+
+function slide(element) {
+	console.log("SLIDE");
+	$(element).hide().slideDown("slow","easeInBounce");
+	
+}	
+
+ko.bindingHandlers.fadeVisible = {
+	init: function(element, valueAccessor) {
+		// Initially set the element to be instantly visible/hidden depending on the value
+		var value = valueAccessor();
+		$(element).toggle(ko.utils.unwrapObservable(value)); // Use "unwrapObservable" so we can handle values that may or may not be observable
+	},
+	update: function(element, valueAccessor) {
+		// Whenever the value subsequently changes, slowly fade the element in or out
+		var value = valueAccessor();
+		ko.utils.unwrapObservable(value) ? $(element).slideDown() : $(element).slideUp();
+	}
+};
 
 
+//control visibility, give element focus, and select the contents (in order)
+ko.bindingHandlers.visibleAndSelect = {
+	update: function(element, valueAccessor) {
+		ko.bindingHandlers.visible.update(element, valueAccessor);
+		if (valueAccessor()) {
+			setTimeout(function() {
+				$(element).focus().select();
+			}, 0); 
+		}
+	}
+}
 
-var vm = new ResultsListViewModel();
+var vm = new InitViewModel();
 

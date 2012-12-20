@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+	function dibujar(iden1,iden2,nuevaVentana)
+	{
+		var grafico=document.getElementById(iden1);
+		var query = encodeURI(escape(document.getElementById("query").value));
+		var endpoint = encodeURI(document.getElementById("endpoint").value);
+		var output = encodeURI(document.getElementById("endpoint_output").value);
+		var chart = encodeURI(document.getElementById("chart").value);
+		var chart_options=encodeURI(document.getElementById("chart_options").value);
+		var estilo = encodeURI(document.getElementById("estilo").value);
+		var URI="sgvizler.php";
+		var parametros_URI;
+		parametros_URI="?query="+query;
+		parametros_URI +="&endpoint="+endpoint;
+		parametros_URI +="&endpoint_output="+output;
+		parametros_URI +="&chart="+chart;
+		parametros_URI +="&chart_options="+chart_options;
+		parametros_URI +="&style="+estilo;
+		URI += parametros_URI;
+		grafico.src=URI;
+		document.getElementById(iden2).style.display="none";
+	}
+	
+	function resize_iframe(iden)
+	{
+		//Buscar el alto y ancho del iframe
+		var alto=document.getElementById(iden).contentWindow.document.body.scrollHeight;
+		var ancho=document.getElementById(iden).contentWindow.document.body.scrollWidth;
+
+		//Cambiar el alto y ancho del iframe
+		document.getElementById(iden).height=alto;
+		document.getElementById(iden).width=ancho;
+	}
+</script>
+</head>
+<body>
+<table border='0' cellpadding="8" cellspacing="1">
+	<tbody>
+		<tr>
+			<td>
+				<p>Endpoint</p>
+				<textarea title="ENDPOINT URL" id="endpoint" rows="1" cols="80">http://shannon.gsi.dit.upm.es/episteme/lmf/sparql/select?</textarea>
+				<p>Query</p>
+				<textarea id="query" rows="18" cols="80">SELECT ?value WHERE {?s <http://www.gsi.dit.upm.es/province> ?value} ORDER BY ?value</textarea>
+				<p>Endpoint_output</p>
+				<textarea id="endpoint_output" rows="1" cols="80">json</textarea>
+				<p>Chart</p>
+				<textarea id="chart" rows="1" cols="80">gPieChart</textarea>
+				<p>Chart options (Optional)</p>
+				<textarea id="chart_options" rows="1" cols="80">is3D=true|title=Number of instances</textarea>
+				<p>Style (Optional but is recommended to have width and height)</p>
+				<textarea id="estilo" rows="1" cols="80">width:800px; height:400px;</textarea>
+			</td>
+			<td>
+				<center>
+					<button type="button" onclick='dibujar("grafico","quitar",false)' style="width:200px; height:40px;"><center>DRAW</center></button>
+				</center>
+			</td>
+			<td>
+				<p id="quitar">Statistics will come here</p>
+				<br>
+				<iframe id="grafico" src="" frameborder="0" height="0" width="0" scrolling="No" onLoad='resize_iframe("grafico")'>An iframe capable browser is required to view this web site.</iframe>
+			</td>
+</body>
+</html> 

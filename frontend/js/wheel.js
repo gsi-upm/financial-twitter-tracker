@@ -1,8 +1,10 @@
 // Coffee Flavour Wheel by Jason Davies,
-// http://www.jasondavies.com/coffee-wheel/
+//  http://www.jasondavies.com/coffee-wheel/
 // License: http://www.jasondavies.com/coffee-wheel/LICENSE.txt
 
+var nodes;
 
+function updateWheel(jsonString) {
 	var width = 600,
 		height = width,
 		radius = width / 2,
@@ -11,10 +13,9 @@
 		padding = 5,
 		duration = 2000;
 
+	$("#vis").empty();
 	var div = d3.select("#vis");
 
-
-	div.select("img").remove();
 
 	var vis = div.append("svg")
 		.attr("width", width + padding * 2)
@@ -33,9 +34,9 @@
 		.innerRadius(function(d) { return Math.max(0, d.y ? y(d.y) : d.y); })
 		.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
-		
-	d3.json("http://localhost/ftt/Visualizador3/script_conversorWheel.php", function(json) {
-	  var nodes = partition.nodes({children: json});
+	var json = JSON.parse(jsonString);
+	/// d3.json(jsonString, function(json) {
+	  nodes = partition.nodes({children: json});
 
 	  var path = vis.selectAll("path").data(nodes);
 	  path.enter().append("path")
@@ -43,7 +44,7 @@
 		  .attr("d", arc)
 		  .attr("fill-rule", "evenodd")
 		  .style("fill", colour)
-		  .on("click", click);
+		  .on("click", click).on("mouseover",mouseover);
 
 	  var text = vis.selectAll("text").data(nodes);
 	  
@@ -62,8 +63,7 @@
 				rotate = angle + (multiline ? -.5 : 0);
 			return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
 		  })
-		  .on("click", click);
-		  
+		  .on("click", click).on("mouseover",mouseover);
 		  
 		 textEnter.append("tspan")
 		  .attr("x", 0)
@@ -81,39 +81,51 @@
 		  .attr("x", 0)
 		  .attr("dy", "1em")
 		  .text(function(d) { return d.depth ? d.name.split(" ")[1] || "" : ""; });*/
-		
+		  
+	   function mouseover(d) {	  
+			$("#tooltip").empty();			
+			if(d.depth > 2){			
+				$("#tooltip").append(d.name);
+			}else{
+				$("#tooltip").append("<br>");
+			}
+	  }
+	  
 	  function click(d) {
-		path.transition()
-		  .duration(duration)
-		  .attrTween("d", arcTween(d));
-		console.log("pinchando en:"+d.name);
-		// Somewhat of a hack as we rely on arcTween updating the scales.
-		text.style("visibility", function(e) {
-			  return isParentOf(d, e) ? null : d3.select(this).style("visibility");
-			})
-		  .transition()
-			.duration(duration)
-			.attrTween("text-anchor", function(d) {
-			  return function() {
-				return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
-			  };
-			})
-			.attrTween("transform", function(d) {
-			  var multiline = (d.name || "").split(" ").length > 1;
-			  return function() {
-				var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-					rotate = angle + (multiline ? -.5 : 0);
-				return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
-			  };
-			})
-			.style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; })
-			.each("end", function(e) {
-			  d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
-			});
+	  	if(d.depth < 3){			
+			path.transition()
+			  .duration(duration)
+			  .attrTween("d", arcTween(d));
+			console.log("pinchando en:"+d.name);
+			// Somewhat of a hack as we rely on arcTween updating the scales.
+			text.style("visibility", function(e) {
+				  return isParentOf(d, e) ? null : d3.select(this).style("visibility");
+				})
+			  .transition()
+				.duration(duration)
+				.attrTween("text-anchor", function(d) {
+				  return function() {
+					return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
+				  };
+				})
+				.attrTween("transform", function(d) {
+				  var multiline = (d.name || "").split(" ").length > 1;
+				  return function() {
+					var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
+						rotate = angle + (multiline ? -.5 : 0);
+					return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
+				  };
+				})
+				.style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; })
+				.each("end", function(e) {
+				  d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
+				});
+		}
 	  }
 	  
 	  
-	});
+	//});
+
 
 		
 	function isParentOf(p, c) {
@@ -157,3 +169,15 @@
 	function brightness(rgb) {
 	  return rgb.r * .299 + rgb.g * .587 + rgb.b * .114;
 	}
+
+
+	function clickWithName(name) {
+		for (var i=0; i < nodes.length; i++) {
+			if (nodes[i].name == name) {
+				console.log("knockout filter to wheel click");
+				console.log(nodes[i]);
+			}
+		}
+	}
+
+}
