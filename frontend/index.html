@@ -62,7 +62,8 @@
 		
 		<!-- d3 -->		
 		<link rel="stylesheet" type="text/css" href="css/wheel.css">
-		
+		<link rel="stylesheet" href="css/barras.css" type="text/css">
+
 		<!-- external -->
 		<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
 		<link rel="stylesheet" type="text/css" href="http://knockoutjs.com/examples/resources/twitterExample.css">
@@ -508,17 +509,28 @@
 				</li>
 				
 				<li class="ui-widget">
-						<div class="ui-widget-header ui-corner-top">
-							<h3 id="widget-nombre">Tweet Donut</h3>
-						</div>
+					<div class="ui-widget-header ui-corner-top">
+						<h3 id="widget-nombre">Tweet Donut</h3>
+					</div>
+					
+					<div class="ui-widget-content">
+						<div align="center" id="vis"></div> 
+						<script src="js/ext/d3.v2.min.js"></script>
+						<script src="js/wheel.js"></script>
+						<div id='tooltip'>Contenido del Tooltip 1</div>
+					</div>
+				</li>
+
+				<li class="ui-widget">
+					<div class="ui-widget-header ui-corner-top">
+						<h3 id="widget-nombre">Barras</h3>
+					</div>
 						
-						<div class="ui-widget-content">
-							<div align="center" id="vis"></div> 
-							<script src="js/ext/d3.v2.min.js"></script>
-							<script src="js/wheel.js"></script>
-							<div id='tooltip'>Contenido del Tooltip 1</div>
-						</div>
-					</li>
+               		<div class="ui-widget-content" >
+						<div align="center" id="barras"></div> 
+						<script src="js/barras.js"></script>
+					</div>
+				</li>
 		
 	
 	

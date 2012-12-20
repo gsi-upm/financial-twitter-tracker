@@ -123,19 +123,21 @@ class RawClassifier(object):
         count = 0
         tokens = nltk.word_tokenize(text)
          #TODO more languages
-        tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
-        for token in tokens: 
-            synsets = self.swn.senti_synsets(token)
-            if len(synsets) > 0: 
-                # TODO no tiene por que ser este lemma. Comprobar la categoria 
-                lemma = synsets[0] 
-                count = count + lemma.pos_score - lemma.neg_score
-        #print count, " points for text :", text
-        if count > 0:
-            return 'p'
-        if count < 0:
-            return 'n'
-        return '-'
+        #tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
+        if len(tokens) > 0:
+            for token in tokens: 
+                synsets = self.swn.senti_synsets(token)
+                if len(synsets) > 0: 
+                    # TODO no tiene por que ser este lemma. Comprobar la categoria 
+                    lemma = synsets[0] 
+                    count = count + lemma.pos_score - lemma.neg_score
+
+            print count, " points for tokens :", tokens
+            if count > 0.5:
+                return 'p'
+            if count < 0.5:
+                return 'n'
+        return 'x'
     
     # CHECK WITH FINANCIAL DICTIONARIES 
     def checkWithFinancialDict(self,text):
@@ -144,7 +146,7 @@ class RawClassifier(object):
             return 'p'
         if count < 0:
             return 'n'
-        return '-'
+        return 'x'
 
     def containsPositiveWord(self,text):
         count = 0
@@ -187,18 +189,19 @@ class RawClassifier(object):
                     print 'rt'
                     continue
 
-                mood = self.checkWithSentiwordnet(text)
-                #mood = self.checkWithFinancialDict(text)
-                if mood == 'x':
-                    continue
 
                 lang  = self.langClassifier.detect(text)
                 # TODO more languages
-                if lang != "en":
+                if lang[0] != 'en':
                     continue
 
                 if stripSmiles:
                     text = self.stripSmiles(text)
+
+                mood = self.checkWithSentiwordnet(text)
+                #mood = self.checkWithFinancialDict(text)
+                if mood == 'x':
+                    continue
                 
                 sres = self.stats(lang[0], mood)
                 if sres == 0:
@@ -214,8 +217,6 @@ class RawClassifier(object):
                 if self.count and self.count % 100 == 0:
                     print "classified %d tweets" % (self.count)
                 self.count += 1
-
-                mood = self.checkWithSentiwordnet(text)
 
                 self.training_data_p1.addRow(text, mood, lang[0])
 
@@ -240,13 +241,13 @@ if __name__ == "__main__":
                         traing_data_fileP2='mood_traing_300k_1k_0.6_strip.dat',
                         data_file='tweets_raw.dat')
     # limit the number of tweets for en 
-    cls.limit['en'] = 300000
+    cls.limit['en'] = 1000000
     # default lang limit
     cls.limit['default'] = 10000
     # second filter threshold
     cls.p2_f_limit = 0.6
     # do not strip icons from trainging data
-    cls.classifyP1(stripSmiles=True)
+    cls.classifyP1(stripSmiles=False)
     cls.classifyP2()
     cls.clsP2.save()
     

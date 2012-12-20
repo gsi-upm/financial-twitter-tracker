@@ -23,7 +23,7 @@ AjaxSolr.Manager = AjaxSolr.AbstractManager.extend(
 	if(vm.lightmode()){
 	      jQuery.getJSON(vm.solr_baseURL() + servlet + '?' + string + '&rows=300&wt=json&json.wrf=?', {}, handler);
 	}else{
-	      jQuery.getJSON(vm.solr_baseURL() + servlet + '?' + string + '&rows=10&&wt=json&json.wrf=?', {}, handler);
+	      jQuery.getJSON(vm.solr_baseURL() + servlet + '?' + string + '&rows=50&&wt=json&json.wrf=?', {}, handler);
 	}
     }
   }

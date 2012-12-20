@@ -414,7 +414,7 @@ function InitViewModel() {
 	self.filteredData = ko.computed(function() {  
 
 		var data = self.filteredCategory();
-		console.log(data)
+		//console.log(data)
 		
 		/** Search box filter */
 		var filter = self.filter();
@@ -441,18 +441,18 @@ function InitViewModel() {
 	/** If results widget data changes, we must update the graphics on top */
 	self.filteredData.subscribe(function (newValue) {
 
-		console.log("FILTERED_DATA: " +  ko.toJSON(newValue))
+		//console.log("FILTERED_DATA: " +  ko.toJSON(newValue))
 		
 		$(".graphics").empty();
 		
 		$.each(self.activeWidgets(), function(index, item) {
-			console.log("ITEM:" + ko.toJSON(item));
+			//console.log("ITEM:" + ko.toJSON(item));
 			if(item.type()=="tagcloud"){
 				
 				$(".graphics").append("<div id='" + item.id()+ "'></div>");
 				
 				var t = ko.utils.getDataColumns(item.field());
-				console.log("T:" + ko.toJSON(t))
+				//console.log("T:" + ko.toJSON(t))
 				var temp = [['Header',0]];
 				for(var i=0, l = t.length; i<l; i++){
 					temp.push([t[i].facet,t[i].count]); 
@@ -462,25 +462,65 @@ function InitViewModel() {
 				new google.visualization.PieChart(document.getElementById(item.id())).draw(data, {title:item.title()});	
 			}
 		});
-
+		// Wheel
 		var array = new Array();
 		$.each(self.filteredData(), function(index, item) {
-			var one = new Object();
-			one["name"] = new String(item.name());
-			var two = new Object();
-			two["name"] = new String(item.polarity_type()[0]).substring(24);
+			var one;
+			var name = new String(item.name());
+			var resultOne = $.grep(array, function(e){ return e["name"].valueOf() == name.valueOf(); });
+			if (resultOne.length == 0) {
+				one = new Object();
+				one["name"] = name;
+				one["children"] = new Array();
+				array.push(one);
+			} else {
+				one = resultOne[0];
+			}
+			var two;
+			var polarity = new String(item.polarity_type()[0]).substring(24);
+			var resultTwo = $.grep(one["children"], function(e){ return e["name"].valueOf() == polarity.valueOf(); });
+			if (resultTwo.length == 0) {
+				two = new Object();
+				two["name"] = polarity;
+				two["children"] = new Array();
+				one["children"].push(two);
+			} else {
+				two = resultTwo[0];
+			}
 			var three = new Object();
 			three["name"] = new String(item.text());
-			three["colour"] = "#cccccc";
-			var arrayThree = new Array();
-			arrayThree.push(three);
-			two["children"] = arrayThree;
-			var arrayTwo = new Array();
-			arrayTwo.push(two);
-			one["children"] = arrayTwo;
-			array.push(one);
+			var value = parseFloat(item. polarity());
+			//var hex = 5*Math.abs(value) + 250;
+			//var hexString = ("0" + hex.toString(16)).slice(-2);	
+			//console.log(hexString);
+			if (value <  -0.1) {
+				three["colour"] = "#FE2E2E";
+			} else if (value > 0.1) {
+				three["colour"] = "#2EFE2E"; 
+			} else {
+				three["colour"] = "#2E64FE"; 
+			}
+			two["children"].push(three);
 		});
-		updateWheel(JSON.stringify(array));
+		$("#vis").fadeOut();
+		setTimeout(function() {
+			updateWheel(JSON.stringify(array));
+			$("#vis").fadeIn();
+		},300);
+		var arrayBarras = new Array();
+		$.each(self.filteredData(), function(index, item) {
+			var value = parseFloat(item. polarity());
+			if (value <  -0.1 || value > 0.1) {
+				arrayBarras.push(item. polarity());
+			}
+		});
+		$("#barras").fadeOut();
+		setTimeout(function() {
+			updateBarras(JSON.stringify(arrayBarras));
+			$("#barras").fadeIn();
+		},300);
+
+		
 
 
 

@@ -5,7 +5,6 @@
 var nodes;
 
 function updateWheel(jsonString) {
-
 	var width = 600,
 		height = width,
 		radius = width / 2,
@@ -93,33 +92,35 @@ function updateWheel(jsonString) {
 	  }
 	  
 	  function click(d) {
-		path.transition()
-		  .duration(duration)
-		  .attrTween("d", arcTween(d));
-		console.log("pinchando en:"+d.name);
-		// Somewhat of a hack as we rely on arcTween updating the scales.
-		text.style("visibility", function(e) {
-			  return isParentOf(d, e) ? null : d3.select(this).style("visibility");
-			})
-		  .transition()
-			.duration(duration)
-			.attrTween("text-anchor", function(d) {
-			  return function() {
-				return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
-			  };
-			})
-			.attrTween("transform", function(d) {
-			  var multiline = (d.name || "").split(" ").length > 1;
-			  return function() {
-				var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-					rotate = angle + (multiline ? -.5 : 0);
-				return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
-			  };
-			})
-			.style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; })
-			.each("end", function(e) {
-			  d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
-			});
+	  	if(d.depth < 3){			
+			path.transition()
+			  .duration(duration)
+			  .attrTween("d", arcTween(d));
+			console.log("pinchando en:"+d.name);
+			// Somewhat of a hack as we rely on arcTween updating the scales.
+			text.style("visibility", function(e) {
+				  return isParentOf(d, e) ? null : d3.select(this).style("visibility");
+				})
+			  .transition()
+				.duration(duration)
+				.attrTween("text-anchor", function(d) {
+				  return function() {
+					return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
+				  };
+				})
+				.attrTween("transform", function(d) {
+				  var multiline = (d.name || "").split(" ").length > 1;
+				  return function() {
+					var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
+						rotate = angle + (multiline ? -.5 : 0);
+					return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
+				  };
+				})
+				.style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; })
+				.each("end", function(e) {
+				  d3.select(this).style("visibility", isParentOf(d, e) ? null : "hidden");
+				});
+		}
 	  }
 	  
 	  
