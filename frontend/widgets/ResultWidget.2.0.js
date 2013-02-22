@@ -5,7 +5,9 @@
 AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
   start: 0,
 
-  
+  beforeRequest: function () {
+    $(this.target).html($('<img/>').attr('src', 'img/ajax-loader.gif'));
+  },
 
   facetLinks: function (facet_field, facet_values) {
     var links = [];
@@ -58,17 +60,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
   },
 
   init: function () {
-    $('a.more').livequery(function () {
-      $(this).toggle(function () {
-        $(this).parent().find('span').show();
-        $(this).text('less');
-        return false;
-      }, function () {
-        $(this).parent().find('span').hide();
-        $(this).text('more');
-        return false;
-      });
-    });
+
   }
 });
 

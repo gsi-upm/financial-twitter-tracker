@@ -2,7 +2,7 @@
 
 
  $.ajax({
-    url: 'http://localhost/ftt/Visualizador3/script_conversorBarras.php',
+    url: 'script_conversorBarras.php',
     type: "GET",
     dataType: "json",
     async:false,
@@ -18,10 +18,10 @@
 
 
 
-function pintaGrafico(datos){
-
-	//var data = JSON.parse(datos);
-	var data = datos;
+function updateBarras(datos){
+	$("#barras").empty();
+	var data = JSON.parse(datos);
+	//var data = datos;
 	var margin1 = {top: 30, right: 10, bottom: 10, left: 10},
 		width1 = 700 - margin1.left - margin1.right,
 		height1 = 30*data.length - margin1.top - margin1.bottom;
@@ -30,7 +30,7 @@ function pintaGrafico(datos){
 
 	var x1 = d3.scale.linear()
 		.domain([-x0, x0])
-		.range([0, width])
+		.range([0, width1])
 		.nice();
 
 	var y1 = d3.scale.ordinal()

@@ -18,15 +18,16 @@ import dictionary
 sys.path.append('../dict/sentiwordnet')
 sys.path.append('../dict')
 from sentiwordnet import SentiWordNetCorpusReader, SentiSynset
+from nltk.corpus import wordnet as wn
 import nltk
 
 
 class RawClassifier(object):
     statsData = {}
-    dataDir = "/home/toni/git/financial-twitter-sentiment-analyzer/tracker/data"
+    dataDir = "/home/toni/git/financial-twitter-tracker/analyzer/tracker/data"
     limit = {}
     skip = 0
-    p2_f_limit = 0.75
+    p2_f_limit = 0.6
     
     def __init__(self,traing_data_fileP1='mood_traing_p1.dat',traing_data_fileP2='mood_traing.dat',data_file='tweets_raw.dat'):
         
@@ -43,7 +44,7 @@ class RawClassifier(object):
 
         self.tweetsFile = open(os.path.join(self.dataDir,data_file),'rb')
 
-        self.limit['en'] = 150000
+        self.limit['en'] = 300000
         self.limit['default'] = 10000
         self.count = 0
 
@@ -117,16 +118,29 @@ class RawClassifier(object):
             self.statsData[lang][mood]+=1
             return 1
 
+    # CHECK WITH SENTIWORDNET
     def checkWithSentiwordnet(self, text):
+        count = 0
         tokens = nltk.word_tokenize(text)
-        for token in tokens: 
-            synsets = self.swn.senti_synsets(token)
-            if len(synsets) > 0: 
-                synset = self.swn.senti_synset(str(synsets[0]))
-                print synset
+         #TODO more languages
+        #tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
+        if len(tokens) > 0:
+            for token in tokens: 
+                synsets = self.swn.senti_synsets(token)
+                if len(synsets) > 0: 
+                    # TODO no tiene por que ser este lemma. Comprobar la categoria 
+                    lemma = synsets[0] 
+                    count = count + lemma.pos_score - lemma.neg_score
+
+            print count, " points for tokens :", tokens
+            if count > 0.5:
+                return 'p'
+            if count < 0.5:
+                return 'n'
+        return 'x'
     
-       
-    def checkKeyWords(self,text):
+    # CHECK WITH FINANCIAL DICTIONARIES 
+    def checkWithFinancialDict(self,text):
         count = self.containsPositiveWord(text) + self.containsNegativeWord(text);
         if count > 0:
             return 'p'
@@ -151,6 +165,7 @@ class RawClassifier(object):
                 count -= 1                
         return count
 
+
     def classifiyRaw(self,file,stripSmiles):
         while True:
             try:
@@ -174,14 +189,19 @@ class RawClassifier(object):
                     print 'rt'
                     continue
 
-                mood = self.checkKeyWords(text)
-                if mood == 'x':
-                    continue
 
                 lang  = self.langClassifier.detect(text)
+                # TODO more languages
+                if lang[0] != 'en':
+                    continue
 
                 if stripSmiles:
                     text = self.stripSmiles(text)
+
+                mood = self.checkWithSentiwordnet(text)
+                #mood = self.checkWithFinancialDict(text)
+                if mood == 'x':
+                    continue
                 
                 sres = self.stats(lang[0], mood)
                 if sres == 0:
@@ -197,8 +217,6 @@ class RawClassifier(object):
                 if self.count and self.count % 100 == 0:
                     print "classified %d tweets" % (self.count)
                 self.count += 1
-
-                self.checkWithSentiwordnet(text)
 
                 self.training_data_p1.addRow(text, mood, lang[0])
 
@@ -220,12 +238,12 @@ class RawClassifier(object):
 if __name__ == "__main__":
 
     cls = RawClassifier(traing_data_fileP1='mood_traing_p1.dat',
-                        traing_data_fileP2='mood_traing_150k_1k_0.6.dat',
+                        traing_data_fileP2='mood_traing_300k_1k_0.6_strip.dat',
                         data_file='tweets_raw.dat')
     # limit the number of tweets for en 
-    cls.limit['en'] = 150000
+    cls.limit['en'] = 1000000
     # default lang limit
-    cls.limit['default'] = 1000
+    cls.limit['default'] = 10000
     # second filter threshold
     cls.p2_f_limit = 0.6
     # do not strip icons from trainging data
