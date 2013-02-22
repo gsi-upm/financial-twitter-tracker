@@ -8,17 +8,18 @@ import os
 import sys
 from datetime import datetime
 import tweetstream
-
+sys.path.append('../')
+import auth
 
 class StreamCollector(threading.Thread):
 
     """ Filter """
-    words = ["st"]
+    words = ['dow jones', 'nasdaq', 'S&P 500', 'S&P500', 'stocks', 'finance', 'stock market']
     """ Limit """
     limit = 1000000
     """ Twitter user/pass"""
-    twitterUser = 'toni_gsi'
-    twitterPass = 'gsigsi'
+    twitterUser = auth.TWITTER_USERNAME
+    twitterPass = auth.TWITTER_PASSWORD
 
     def __init__(self, tweetsQueue, stop_event):
         threading.Thread.__init__(self)  
@@ -29,8 +30,8 @@ class StreamCollector(threading.Thread):
 
 
     def collect(self):
-        #with tweetstream.FilterStream(self.twitterUser, self.twitterPass, track=self.words) as stream:
-        with tweetstream.SampleStream(self.twitterUser, self.twitterPass) as stream:
+        with tweetstream.FilterStream(self.twitterUser, self.twitterPass, track=self.words) as stream:
+        #with tweetstream.SampleStream(self.twitterUser, self.twitterPass) as stream:
             for tweet in stream:
 
                 #print tweet.get('text')
@@ -65,6 +66,7 @@ class StreamCollector(threading.Thread):
 class StreamWriter(threading.Thread):
     
     fileName = os.path.abspath(os.path.join( os.curdir,os.path.normpath('../data/tweets_raw.dat')))
+
     data = []
     
     def __init__(self, tweetsQueue, stop_event):

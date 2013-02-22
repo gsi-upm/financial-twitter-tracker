@@ -21,10 +21,13 @@ from sentiwordnet import SentiWordNetCorpusReader, SentiSynset
 from nltk.corpus import wordnet as wn
 import nltk
 
+TRAINING_P1_FILE = '../data/mood_traing_p1.dat'
+TRAINING_P2_FILE = '../data/mood_traing.dat'
+DATA_FILE = '../data/tweets_raw.dat'
+
 
 class RawClassifier(object):
     statsData = {}
-    dataDir = "/home/toni/git/financial-twitter-tracker/analyzer/tracker/data"
     limit = {}
     skip = 0
     p2_f_limit = 0.6
@@ -39,10 +42,9 @@ class RawClassifier(object):
         self.training_data_p1 = MoodDetectTrainData()
         self.training_data_p2 = MoodDetectTrainData()
         
-        self.tweetsFile = open(os.path.join(self.dataDir,data_file),'rb')
+        self.tweetsFile = open(os.path.abspath(os.path.join( os.curdir,os.path.normpath('../data/' + data_file))),'rb')
         self.countRows(self.tweetsFile)
-
-        self.tweetsFile = open(os.path.join(self.dataDir,data_file),'rb')
+        self.tweetsFile = open(os.path.abspath(os.path.join( os.curdir,os.path.normpath('../data/' + data_file))),'rb')
 
         self.limit['en'] = 300000
         self.limit['default'] = 10000
@@ -50,7 +52,6 @@ class RawClassifier(object):
 
         swn_filename = '../dict/sentiwordnet/SentiWordNet_3.0.0_20100705.txt'
         self.swn = SentiWordNetCorpusReader(swn_filename)
-
         
     
     def classifyP1(self,stripSmiles=False):
@@ -120,31 +121,37 @@ class RawClassifier(object):
 
     # CHECK WITH SENTIWORDNET
     def checkWithSentiwordnet(self, text):
-        count = 0
-        tokens = nltk.word_tokenize(text)
-         #TODO more languages
-        tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
-        if len(tokens) > 0:
-            for token in tokens: 
-                synsets = self.swn.senti_synsets(token)
-                if len(synsets) > 0: 
-                    # TODO no tiene por que ser este lemma. Comprobar la categoria 
-                    lemma = synsets[0] 
-                    count = count + lemma.pos_score - lemma.neg_score
-
-            print count, " points for tokens :", tokens
-            if count > 0.5:
-                return 'p'
-            if count < 0.5:
-                return 'n'
+        countPos = 0
+        countNeg = 0
+        sentences = nltk.sent_tokenize(text)
+        if len(sentences) > 0:
+            for sentence in sentences:
+                tokens = nltk.word_tokenize(sentence)
+                #TODO more languages
+                tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
+                if len(tokens) > 0:
+                    for token in tokens: 
+                        synsets = self.swn.senti_synsets(token)
+                        if len(synsets) > 0: 
+                            # TODO no tiene por que ser este lemma. Comprobar la categoria 
+                            lemma = synsets[0] 
+                            #count = count + lemma.pos_score - lemma.neg_score
+                            countPos = countPos + lemma.pos_score
+                            countNeg = countNeg + lemma.neg_score
+                    #print countPos, "POS ", countNeg, "NEG for tokens :", tokens
+                    if countPos > 0.5 and countPos > countNeg*1.5:
+                        return 'p'
+                    if countNeg > 0.5 and countNeg > countPos*1.5:
+                        return 'n'
         return 'x'
     
     # CHECK WITH FINANCIAL DICTIONARIES 
     def checkWithFinancialDict(self,text):
-        count = self.containsPositiveWord(text) + self.containsNegativeWord(text);
-        if count > 0:
+        pos = self.containsPositiveWord(text)
+        neg = self.containsNegativeWord(text)
+        if pos > neg*1.5:
             return 'p'
-        if count < 0:
+        if neg > pos*1.5:
             return 'n'
         return 'x'
 
@@ -162,7 +169,7 @@ class RawClassifier(object):
         for item in dictionary.negative:
             if item in text:
                 #print 'n:', item
-                count -= 1                
+                count += 1                
         return count
 
 
@@ -198,8 +205,8 @@ class RawClassifier(object):
                 if stripSmiles:
                     text = self.stripSmiles(text)
 
-                mood = self.checkWithSentiwordnet(text)
-                #mood = self.checkWithFinancialDict(text)
+                #mood = self.checkWithSentiwordnet(text)
+                mood = self.checkWithFinancialDict(text)
                 if mood == 'x':
                     continue
                 
@@ -237,9 +244,7 @@ class RawClassifier(object):
     
 if __name__ == "__main__":
 
-    cls = RawClassifier(traing_data_fileP1='mood_traing_p1.dat',
-                        traing_data_fileP2='mood_traing_300k_1k_0.6_strip.dat',
-                        data_file='tweets_raw.dat')
+    cls = RawClassifier()
     # limit the number of tweets for en 
     cls.limit['en'] = 1000000
     # default lang limit

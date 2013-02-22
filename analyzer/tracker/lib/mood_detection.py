@@ -62,7 +62,7 @@ class MoodDetectTrainer(object):
 class MoodClasses(object):
     positive = 'p'
     negative = 'n'
-    neutral = '-'    
+    neutral = 'x'    
 
 
 class MoodDetect(object):
