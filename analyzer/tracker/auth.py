@@ -1,0 +1,2 @@
+TWITTER_USERNAME = "toni_gsi"
+TWITTER_PASSWORD = "gsigsi"
