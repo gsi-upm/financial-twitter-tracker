@@ -1,0 +1,9 @@
+*.pyc
+*.*~
+.*~
+*.OLD/
+OLD/
+output/
+*.dat
+
+
