@@ -5,5 +5,6 @@
 OLD/
 output/
 *.dat
-
-
+analyzer/tracker/data/*.dat
+analyzer/tracker/data/OLD/
+analyzer/tracker/data/output/
