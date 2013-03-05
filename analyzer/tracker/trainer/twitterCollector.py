@@ -13,7 +13,7 @@ import tweetstream
 class StreamCollector(threading.Thread):
 
     """ Filter """
-    words = ["st"]
+    words = ["#SP500", "#forex",  "#DowJones"]
     """ Limit """
     limit = 1000000
     """ Twitter user/pass"""
@@ -29,8 +29,8 @@ class StreamCollector(threading.Thread):
 
 
     def collect(self):
-        #with tweetstream.FilterStream(self.twitterUser, self.twitterPass, track=self.words) as stream:
-        with tweetstream.SampleStream(self.twitterUser, self.twitterPass) as stream:
+        with tweetstream.FilterStream(self.twitterUser, self.twitterPass, track=self.words) as stream:
+        #with tweetstream.SampleStream(self.twitterUser, self.twitterPass) as stream:
             for tweet in stream:
 
                 #print tweet.get('text')
