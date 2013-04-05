@@ -1,7 +1,7 @@
 
 /** YOU MUST EDIT THIS LINE */
 //var serverURL = "http://localhost:8080/LMF/";
-var serverURL = "http://shannon.gsi.dit.upm.es/episteme/lmf/";
+var serverURL = "http://lab.gsi.dit.upm.es/episteme/tomcat/LMF/";
 
 var map;
 var i_layoutresultsextra = 0;

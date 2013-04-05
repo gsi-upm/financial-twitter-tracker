@@ -131,7 +131,6 @@ class RawClassifier(object):
                     # TODO no tiene por que ser este lemma. Comprobar la categoria 
                     lemma = synsets[0] 
                     count = count + lemma.pos_score - lemma.neg_score
-
             print count, " points for tokens :", tokens
             if count > 0.5:
                 return 'p'

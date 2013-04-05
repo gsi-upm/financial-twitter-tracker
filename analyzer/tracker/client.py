@@ -11,10 +11,18 @@ sys.path.append('dict')
 import dictionary
 import requests
 # sys.path.append('../')
+import nltk
+import auth
 
+#SERVER = "http://lab.gsi.dit.upm.es/episteme/tomcat/LMF/import/upload"
+#SERVER = "http://localhost:8080/LMF/import/upload"
+#SERVER = "http://127.0.0.1:8080/LMF-2.6.0/import/upload"
+SERVER = "http://lab.gsi.dit.upm.es/episteme/tomcat/LMF/import/upload"
+RAW_DATA_FILE = 'data/tweets_raw.dat'
+MOOD_DATA_FILE = 'data/tweets_mood.dat'
+WORDS = ['stocks', 'finance']
 MCC = MoodClassifierTCPClient('127.0.0.1',6666)
-#words = ['dow jones', 'nasdaq', 'S&P 500', 'S&P500', 'finance']
-words = ['finance']
+
 
 
 
@@ -22,8 +30,8 @@ class StreamCollector(threading.Thread):
 	""" Limit """
 	limit = 100
 	""" Twitter user/pass"""
-	twitterUser = 'toni_gsi'
-	twitterPass = 'gsigsi'
+	twitterUser = auth.TWITTER_USERNAME
+	twitterPass = auth.TWITTER_PASSWORD
 
 	def __init__(self, tweetsQueue, words):
 		threading.Thread.__init__(self)  
@@ -48,8 +56,8 @@ class StreamCollector(threading.Thread):
 
 class StreamWriter(threading.Thread):
 
-	fileNameRaw = os.path.abspath(os.path.join( os.curdir,os.path.normpath('data/output/tweets_raw.dat')))
-	fileNameMood = os.path.abspath(os.path.join( os.curdir,os.path.normpath('data/output/tweets_mood.dat')))
+	fileNameRaw = os.path.abspath(os.path.join( os.curdir,os.path.normpath(RAW_DATA_FILE)))
+	fileNameMood = os.path.abspath(os.path.join( os.curdir,os.path.normpath(MOOD_DATA_FILE)))
 
 	def __init__(self, tweetsQueue, words):
 		threading.Thread.__init__(self)  
@@ -63,29 +71,29 @@ class StreamWriter(threading.Thread):
 			tweet = self.queue.get(block=True)
 			cPickle.dump(tweet, self.fileRaw,protocol=1)
 			text = unicode(tweet.get('text'));
-			# borra las search keywords antes de clasificar? puede ser
-			# total salen en todos los tweets asi que no aportan informacion...
+			# tokens = nltk.word_tokenize(text)
+			#TODO more languages
+			# tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
 			textMood = MCC.classify([{'text': text}], " ".join(self.words))
-
 			if (textMood[0].get('x_mood') != 0.0):
 				if (textMood[0].get('x_lang') == 'en'):
 					print textMood[0].get('x_mood'), " -> ", textMood[0].get('text') 
-			#self.sendFile(tweet, textMood)
-			#print self.createFile(tweet, textMood)
+					#print self.createFile(tweet, textMood, self.words)
+			self.sendFile(tweet, textMood)
 
 			cPickle.dump(tweet, self.fileMood, protocol=1)
 
 
 	def sendFile(self, tweet, mood):
 		params = {'context': 'default'}
-		headers = {'Content-Type': 'application/rdf+xml' }
-		data = self.createFile(tweet,mood)
+		headers = {'Content-Type': 'application/rdf+xml'}
+		data = self.createFile(tweet,mood, WORDS)
 		files = {'file':  data}
-		r = requests.post("http://shannon.gsi.dit.upm.es/episteme/lmf/import/upload", params=params, data=data, headers=headers)
+		r = requests.post(SERVER, params=params, data=data, headers=headers)
 		print r.headers
 		print r.status_code , r.text
 
-	def createFile(self, tweet, mood):
+	def createFile(self, tweet, mood, words):
 		s = """<?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:dcterms="http://purl.org/dc/terms/"
 xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -96,7 +104,9 @@ xmlns:marl="http://purl.org/marl/">
 		s += tweet.get('id_str').encode('utf-8')
 		s += """.json">
 		<rdf:type rdf:resource="http://rdfs.org/sioc/types#MicroblogPost"/>
-		<dc:title>TEST2</dc:title>
+		<dc:title>"""
+		s += " ".join(words)
+		s += """</dc:title>
 		<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">"""
 		s += tweet.get('created_at').encode('utf-8')
 		s += """</dcterms:created>
@@ -129,17 +139,17 @@ xmlns:marl="http://purl.org/marl/">
 try:
 	tweetsQueue = Queue.Queue()
 	# collector thread
-	c = StreamCollector(tweetsQueue, words)
+	c = StreamCollector(tweetsQueue, WORDS)
 	c.daemon = True
 	c.start()
 	# writer thread
-	w = StreamWriter(tweetsQueue, words)
+	w = StreamWriter(tweetsQueue, WORDS)
 	w.daemon = True
 	w.start()
 	while True:
-		c.join(500)
-		if not c.isAlive():
-				break
+		c.join(1000)
+	#	if not c.isAlive():
+	#				break
 	print "Finished"
 
 except KeyboardInterrupt:

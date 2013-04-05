@@ -3,7 +3,7 @@
 var configuration = {
 	"widgets" : [],
 	"endpoints" : {
-		"serverURL": "http://localhost:8080/LMF/",
+		"serverURL": "http://lab.gsi.dit.upm.es/episteme/tomcat/LMF/",
 		"baseURL" : [""],
 		"sparql_baseURL" : []
 	},
