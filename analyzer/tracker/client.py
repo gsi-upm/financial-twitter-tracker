@@ -20,7 +20,7 @@ import auth
 SERVER = "http://lab.gsi.dit.upm.es/episteme/tomcat/LMF/import/upload"
 RAW_DATA_FILE = 'data/tweets_raw.dat'
 MOOD_DATA_FILE = 'data/tweets_mood.dat'
-WORDS = ['stocks', 'finance']
+WORDS = ['dow jones']
 MCC = MoodClassifierTCPClient('127.0.0.1',6666)
 
 
