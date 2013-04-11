@@ -7,7 +7,7 @@ $filtro = $_GET['filter'];
 if (!isset($filtro)) $filtro="";
 
 //END POINT LMF
-$endpoint = "http://shannon.gsi.dit.upm.es/episteme/lmf/sparql/select"; 
+$endpoint = "http://lab.gsi.dit.upm.es/episteme/tomcat/LMF/sparql/select"; 
 
 //QUERY PARA SELECCIONAR DATOS
 if($filtro == ""){
