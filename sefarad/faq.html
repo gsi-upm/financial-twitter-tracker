@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>SEFARAD - FAQ</title>
+        
+        <!-- Google Webfonts and our stylesheet -->
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow|Open+Sans:300" />
+        <link rel="stylesheet" href="css/faq.css" />
+        
+        <!--[if lt IE 9]>
+          <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+		
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script src="js/ext/knockout-2.1.0.js"></script>
+
+		<!-- sefarad -->
+		<script type="text/javascript" charset="UTF-8" src="js/lang.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="default_configuration.js"></script>
+
+		<!-- on load -->
+		<script type="text/javascript" charset="UTF-8">
+			
+			$(document).ready(function() {
+				ko.applyBindings(m);
+			});
+			
+		</script>  		
+    </head>
+    
+	
+	
+    <body>
+
+	<div class="header">	
+		<select id="lang" data-bind="options: languages, value: selectedLanguage, optionsCaption: lang().langcaption"></select>
+		<hr>
+	</div>	
+		<div id="impress" class="impress-not-supported">
+			
+			<div id="intro" class="step" data-x="0" data-y="0">
+		        <h2 data-bind="text: lang().faq1a"></h2>
+		        <p><span data-bind="text: lang().faq1b"></span>
+				</br>
+		        <span data-bind="text: lang().faq1c"></span>
+				</br>
+				<a href="http://code.google.com/p/lmf/downloads/list" target="_blank">http://code.google.com/p/lmf/downloads/list</a></p>
+		        <img src="img/faq/lmf.png" width="642" height="291" alt="LMF" />
+		    </div>
+		    
+		    <div id="simplicity" class="step" data-x="1100" data-y="1200" data-scale="1.8" data-rotate="190">
+		        <h2 data-bind="text: lang().faq2a"></h2>
+		        <p>Android 4.0, Ice Cream Sandwich brings an entirely new look and feel to Android. Simple layouts with subtle animations and delightful flourishes make everything feel alive. </p>
+		        <img src="img/faq/lmf.png" width="642" height="291" alt="Galaxy Nexus" />
+		    </div>
+		    
+		    <div id="connect" class="step" data-x="-300" data-y="600" data-scale="0.2" data-rotate="270">
+		        <h2>Connect &amp; Share</h2>
+		        <p>Real-life sharing is nuanced and rich. Galaxy Nexus makes sharing with mobile devices just as easy at it is in person. </p>
+		        <img src="img/img/nexus_3.jpg" width="558" height="329" alt="Galaxy Nexus" />
+		    </div>
+		    
+		    <div id="upload" class="step" data-x="-200" data-y="1500" data-rotate="180">
+		        <h2>Instant Upload</h2>
+		        <p>Your photos upload themselves with Instant Upload, which makes it much easier to share them with family and friends.</p>
+		        <img src="img/img/nexus_4.jpg" width="248" height="510" alt="Galaxy Nexus" />
+		    </div>
+		    
+		    <div id="music" class="step" data-x="-1200" data-y="1000" data-scale="0.8" data-rotate="270">
+		        <h2>Jam on with Google Music</h2>
+		        <p>Google Music makes discovery, purchase, and listening effortless and fun. Store your entire collection for free, and stream your music to your Galaxy Nexus, computer, or other Android devices.</p>
+		        <img src="img/img/nexus_5.jpg" width="570" height="389" alt="Galaxy Nexus" />
+		    </div>
+		    
+		</div>
+
+		<a id="arrowLeft" class="arrow">&lt;</a>
+		<a id="arrowRight" class="arrow">&gt;</a>
+        
+		
+
+
+        <!-- JavaScript includes -->
+		<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+		<script src="js/faq.js"></script>
+	<script type='text/javascript' charset="UTF-8" src="js/promo.js"></script>
+    </body>
+</html>
+

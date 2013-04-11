@@ -1,0 +1,80 @@
+
+﻿<!DOCTYPE html>
+<html lang="es">
+	
+	<!-- head starts -->
+	<head>
+		<meta charset="utf-8" />
+		<title>SEFARAD - FAQ</title>
+		
+		<!-- global stylesheets -->
+		
+		<link rel="stylesheet" href="css/promo.css" type="text/css">
+		<link rel="stylesheet" href="css/main.css" type="text/css">	
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script type="text/javascript">
+		
+		function make_base_auth(user, password) {
+			var tok = user + ':' + password;
+			var hash = btoa(tok);
+			return "Basic " + hash;
+		}
+
+		function doLogin(){
+		$.ajax({
+			type:"GET",
+			url: "http://localhost:8080/LMF/user/login",
+			//url: "http://shannon.gsi.dit.upm.es/episteme/lmf/user/login",
+			data: { logout: 'false', user: 'admin' },
+			beforeSend: function(xhr){		
+				//xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+				//xhr.setRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+
+				xhr.setRequestHeader('Authorization', make_base_auth('admin', 'pass123'));
+				//xhr.setRequestHeader("Cache-Control", "max-age=0");				
+				//xhr.setRequestHeader("Referer", "http://www.google.com");
+			},
+			success: function(data){
+				alert("Login correcto");	
+			},
+			error: function(data) {
+				console.log(data);
+				if(data.status=='401'){
+					alert("USUARIO INCORRECTO");
+				}else{
+					alert("USUARIO CORRECTO");
+				}
+			}
+		});	
+		}
+		
+		function whois(){
+		$.ajax({
+			type:"GET",
+			url: "http://localhost:8080/LMF/user/me",
+			beforeSend: function(xhr){		
+				//xhr.setRequestHeader('Authorization', make_base_auth('admin', 'pass123'));
+				//xhr.setRequestHeader("Cache-Control", "max-age=0");				
+				//xhr.setRequestHeader("Referer", "http://www.google.com");
+				xhr.setRequestHeader('Authorization', make_base_auth('admin', 'pass123'));
+			},
+			success: function(data){
+				console.log(data);
+				alert("Eres " + data.login);	
+			},
+			error: function(data) {
+				console.log(data);
+			}
+		});				
+		}
+		</script>
+	</head>
+	
+	<body>
+
+	<button onclick='doLogin()'>Hacer login</button>
+	<button onclick='whois()'>Quien soy</button>
+	</body>
+	
+</html>

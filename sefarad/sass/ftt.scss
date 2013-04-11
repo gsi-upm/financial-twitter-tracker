@@ -1,0 +1,59 @@
+@import "sassy-buttons";
+
+.topbar {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100; 
+	font-style: bold;
+}
+
+.button {
+	@include sassy-button;
+}
+
+.ui-widget {
+	font-family: 'Raleway', sans-serif;
+	font-weight: 300; 
+}
+
+.ui-widget-header a,.ui-widget-header h3 {
+	font-family: 'Raleway', sans-serif;
+	font-weight: 500; 
+	text-decoration: none;
+}
+
+#configuration_button {
+	top:10px;
+}
+
+.resultado h2 {
+	float:left;
+	font-size: 1.2em;
+}
+
+.resultado h4 {
+	color:#aaa;
+	float:right;
+}
+
+.resultado p {
+	clear:both;
+	font-weight:400;
+}
+
+.resultswidget-header h2{
+	margin:20px 10px 0px 0;
+	font-size:1em;
+	text-align:right;
+}
+
+.footer img {
+	width:auto;
+	height:50px;
+	margin:10px;
+}
+
+#tooltip {
+	margin:10px;
+	padding:10px;
+	background-color:#F3F781;
+}

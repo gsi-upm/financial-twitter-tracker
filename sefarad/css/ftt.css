@@ -1,0 +1,122 @@
+/* line 3, ../sass/ftt.scss */
+.topbar {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100;
+  font-style: bold;
+}
+
+/* line 9, ../sass/ftt.scss */
+.button {
+  font-size: 16px;
+  padding: 0.5em 1.5em;
+  display: inline-block;
+  cursor: pointer;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  *zoom: 1;
+  filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#FF0B99C2', endColorstr='#FF064D61');
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #0b99c2), color-stop(100%, #087392));
+  background: -webkit-linear-gradient(#0b99c2, #087392);
+  background: -moz-linear-gradient(#0b99c2, #087392);
+  background: -o-linear-gradient(#0b99c2, #087392);
+  background: linear-gradient(#0b99c2, #087392);
+  -webkit-box-shadow: #27c5f3 0 1px 0 inset;
+  -moz-box-shadow: #27c5f3 0 1px 0 inset;
+  box-shadow: #27c5f3 0 1px 0 inset;
+  border: 1px solid #07607a;
+  color: white;
+  text-shadow: #043645 0 -1px 0;
+}
+/* line 15, ../../../../../../var/lib/gems/1.8/gems/sassy-buttons-0.1.4/stylesheets/sassy-buttons/_sassy-button-pseudo-states.sass */
+.button:hover {
+  text-decoration: none;
+}
+/* line 36, ../../../../../../var/lib/gems/1.8/gems/sassy-buttons-0.1.4/stylesheets/sassy-buttons/_sassy-button-pseudo-states.sass */
+.button:hover {
+  background-color: #07607a;
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #0a86aa), color-stop(100%, #07607a));
+  background: -webkit-linear-gradient(#0a86aa, #07607a);
+  background: -moz-linear-gradient(#0a86aa, #07607a);
+  background: -o-linear-gradient(#0a86aa, #07607a);
+  background: linear-gradient(#0a86aa, #07607a);
+}
+/* line 39, ../../../../../../var/lib/gems/1.8/gems/sassy-buttons-0.1.4/stylesheets/sassy-buttons/_sassy-button-pseudo-states.sass */
+.button:active {
+  -webkit-box-shadow: #06546b 0 1px 2px inset;
+  -moz-box-shadow: #06546b 0 1px 2px inset;
+  box-shadow: #06546b 0 1px 2px inset;
+}
+/* line 6, ../../../../../../var/lib/gems/1.8/gems/sassy-buttons-0.1.4/stylesheets/sassy-buttons/_sassy-button-pseudo-states.sass */
+.button.disabled, .button[disabled] {
+  opacity: 0.6;
+  background: #087392;
+  cursor: default;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+/* line 73, ../../../../../../var/lib/gems/1.8/gems/sassy-buttons-0.1.4/stylesheets/_sassy-buttons.sass */
+.button::-moz-focus-inner {
+  padding: 0 !important;
+  margin: -1px !important;
+}
+
+/* line 13, ../sass/ftt.scss */
+.ui-widget {
+  font-family: 'Raleway', sans-serif;
+  font-weight: 300;
+}
+
+/* line 18, ../sass/ftt.scss */
+.ui-widget-header a, .ui-widget-header h3 {
+  font-family: 'Raleway', sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* line 24, ../sass/ftt.scss */
+#configuration_button {
+  top: 10px;
+}
+
+/* line 28, ../sass/ftt.scss */
+.resultado h2 {
+  float: left;
+  font-size: 1.2em;
+}
+
+/* line 33, ../sass/ftt.scss */
+.resultado h4 {
+  color: #aaa;
+  float: right;
+}
+
+/* line 38, ../sass/ftt.scss */
+.resultado p {
+  clear: both;
+  font-weight: 400;
+}
+
+/* line 43, ../sass/ftt.scss */
+.resultswidget-header h2 {
+  margin: 20px 10px 0px 0;
+  font-size: 1em;
+  text-align: right;
+}
+
+/* line 49, ../sass/ftt.scss */
+.footer img {
+  width: auto;
+  height: 50px;
+  margin: 10px;
+}
+
+/* line 55, ../sass/ftt.scss */
+#tooltip {
+  margin: 10px;
+  padding: 10px;
+  background-color: #F3F781;
+}
