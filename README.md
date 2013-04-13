@@ -4,10 +4,29 @@ A semantic sentiment analyzer for tweets with a financial context. It's currentl
 
 ## Installation:
 
-1. Download LMF and follow [the installation guide](https://code.google.com/p/lmf/wiki/InstallationSetup). Don't forget to set *LMF_HOME* in *$CATALINA_HOME/bin/setenv.sh* and give permissions to this folder in UNIX systems.
-2. Download and install (with [python-setuptools](https://pypi.python.org/pypi/setuptools)) the [tweetstream module](https://pypi.python.org/pypi/tweetstream).
-3. Download and install [nltk](http://nltk.org/).
-4. Download and install [requests](http://docs.python-requests.org/)
+1. Download and install (with [python-setuptools](https://pypi.python.org/pypi/setuptools)) the [tweetstream module](https://pypi.python.org/pypi/tweetstream).
+2. Download and install [nltk](http://nltk.org/).
+3. Download and install [requests](http://docs.python-requests.org/)
+4. Download LMF and follow [the installation guide](https://code.google.com/p/lmf/wiki/InstallationSetup). Don't forget to set *LMF_HOME* in *$CATALINA_HOME/bin/setenv.sh* and give permissions to this folder in UNIX systems.
+5. Configure LMF: we need to create a core for the semantic search. Under *Semantic search*->*Core*, create a new core with this content:
+
+ ```
+@prefix dc : <http://purl.org/dc/elements/1.1/> ;
+@prefix sioc : <http://rdfs.org/sioc/ns#> ;
+@prefix rdf : <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+@prefix marl : <http://purl.org/marl/> ;
+@prefix dcterms : <http://purl.org/dc/terms/> ;
+@filter rdf:type is <http://rdfs.org/sioc/types#MicroblogPost> ;
+  title = dc:title :: xsd:string ;
+  created = dcterms:created :: xsd:string ;
+  has_creator = sioc:has_creator :: xsd:string ;
+  opinionText = marl:opinionText :: xsd:string ;
+  polarityValue = marl:polarityValue :: xsd:string ;
+  minPolarityValue = marl:minPolarityValue :: xsd:string ;
+  maxPolarityValue = marl:maxPolarityValue :: xsd:string ;
+  hasPolarity = marl:hasPolarity :: xsd:string ;
+ ```
+
 
 ## Usage:
 
@@ -26,27 +45,6 @@ The first time you will need to train the analyzer. The quality of the semantic 
 2. Execute *moodClassifierd.py debug* and wait for it to start;
 3. Modify the configuration file to select what words do you want to search on twitter.
 4. Execute *client.py* in other terminal.
-
-### Configure LMF
-
-1. We need to create a core for the semantic search. Under *Semantic search*->*Core*, create a new core with this content:
-
- ```
-@prefix dc : <http://purl.org/dc/elements/1.1/> ;
-@prefix sioc : <http://rdfs.org/sioc/ns#> ;
-@prefix rdf : <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
-@prefix marl : <http://purl.org/marl/> ;
-@prefix dcterms : <http://purl.org/dc/terms/> ;
-@filter rdf:type is <http://rdfs.org/sioc/types#MicroblogPost> ;
-  title = dc:title :: xsd:string ;
-  created = dcterms:created :: xsd:string ;
-  has_creator = sioc:has_creator :: xsd:string ;
-  opinionText = marl:opinionText :: xsd:string ;
-  polarityValue = marl:polarityValue :: xsd:string ;
-  minPolarityValue = marl:minPolarityValue :: xsd:string ;
-  maxPolarityValue = marl:maxPolarityValue :: xsd:string ;
-  hasPolarity = marl:hasPolarity :: xsd:string ;
- ```
 
 ### Showing the data in the web frontend
 
