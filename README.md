@@ -4,7 +4,7 @@ A semantic sentiment analyzer for tweets with a financial context. It's currentl
 
 ## Installation:
 
-1. Download LMF and follow [the installation guide](https://code.google.com/p/lmf/wiki/InstallationSetup). Don't forget to set *LMF_HOME* in *$CATALINA_HOME/bin/setenv.sh* and give full access to the tomcat user in UNIX systems.
+1. Download LMF and follow [the installation guide](https://code.google.com/p/lmf/wiki/InstallationSetup). Don't forget to set *LMF_HOME* in *$CATALINA_HOME/bin/setenv.sh* and give permissions to this folder in UNIX systems.
 2. Download and install (with [python-setuptools](https://pypi.python.org/pypi/setuptools)) the [tweetstream module](https://pypi.python.org/pypi/tweetstream).
 3. Download and install [nltk](http://nltk.org/).
 4. Download and install [requests](http://docs.python-requests.org/)
@@ -15,7 +15,7 @@ A semantic sentiment analyzer for tweets with a financial context. It's currentl
 
 The first time you will need to train the analyzer. The quality of the semantic annotation is related on the amount of tweets and their quality.
 
-1. Go to /analyzer/trainer/
+1. Go to */analyzer/trainer/*
 2. To train the analizer we need a lot of tweets. Execute *twitterCollector.py* to get a stream of filtered tweets and save them in */analyzer/data/tweets_raw.dat*. Sucesive executions will append more tweets to this file.
 3. We also need the [SentiWordNet sentiment dictionary](http://sentiwordnet.isti.cnr.it/), to use this dictionary you'll need to ask for it and is not included in the repository, and to place it under */analyzer/dict/sentiwordnet*. A simpler financial [dictionary](http://www.nd.edu/~mcdonald/Word_Lists.html) it's also included and can be used setting *USE_SENTIWORDNET_DICT* to *False* in the configuration file.
 4. Execute *tweetClassifier.py*.
@@ -24,7 +24,7 @@ The first time you will need to train the analyzer. The quality of the semantic 
 
 1. Go to /analyzer
 2. Execute *moodClassifierd.py debug* and wait for it to start;
-3. Modify *client.py* to select what words do you want to search in twitter.
+3. Modify the configuration file to select what words do you want to search on twitter.
 4. Execute *client.py* in other terminal.
 
 ### Configure LMF
