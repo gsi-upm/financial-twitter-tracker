@@ -51,7 +51,7 @@ The first time you will need to train the analyzer. The quality of the semantic 
 1. Go to */frontend*
 2. Configure *default_configuration.js* with your LMF server URL.
 3. Open *sefarad.html*. Now you'll see a modified version of [Sefarad](https://github.com/gsi-upm/Sefarad) prepared for this project (Warning: the UI is in Spanish). You should see a list with the annotated tweets saved in the LMF server and two widgets. Now you can add more widgets and select what data will appear in them. Recommended widgets: 
-	- Bar charts, modified to work as a histogram of polarity value ranges.  Field: *polarityValue*.
+	- Bar chart, modified to work as a histogram of polarity value ranges.  Field: *polarityValue*.
 	- Line chart as historic of number of tweets per hour. Field: *lmf.created*.
 	- Pie chart with sentiments. Field: *hasPolarity*.
 	- Filters for sentiments and topics.
