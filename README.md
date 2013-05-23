@@ -1,6 +1,6 @@
 #financial-twitter-tracker
 
-A semantic sentiment analyzer for tweets with a financial context. It's currently under development.
+A semantic sentiment analyzer for tweets with a financial context.
 
 ## Installation:
 
