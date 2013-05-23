@@ -7,7 +7,7 @@ A semantic sentiment analyzer for tweets with a financial context. It's currentl
 1. Download and install (with [python-setuptools](https://pypi.python.org/pypi/setuptools)) the [tweetstream module](https://pypi.python.org/pypi/tweetstream).
 2. Download and install [nltk](http://nltk.org/).
 3. Download and install [requests](http://docs.python-requests.org/)
-4. Download LMF and follow [the installation guide](https://code.google.com/p/lmf/wiki/InstallationSetup). Don't forget to set *LMF_HOME* in *$CATALINA_HOME/bin/setenv.sh* and give permissions to this folder in UNIX systems.
+4. Download and install [LMF 2.3.5](https://code.google.com/p/lmf/downloads/detail?name=lmf-installer-2.3.5-SNAPSHOT.jar) (THIS IS IMPORTANT AS 2.6 VERSION DOESN'T WORK PROPERLY).
 5. Configure LMF: we need to create a core for the semantic search. Under *Semantic search*->*Core*, create a new core with this content:
 
  ```
@@ -41,14 +41,21 @@ The first time you will need to train the analyzer. The quality of the semantic 
 
 ### Getting semantic annotated tweets and saving them in LMF
 
-1. Go to /analyzer
+1. Go to */analyzer*
 2. Execute *moodClassifierd.py debug* and wait for it to start;
 3. Modify the configuration file to select what words do you want to search on twitter.
 4. Execute *client.py* in other terminal.
 
 ### Showing the data in the web frontend
 
-*(TODO)*
+1. Go to */frontend*
+2. Configure *default_configuration.js* with your LMF server URL.
+3. Open *sefarad.html*. Now you'll see a modified version of [Sefarad](https://github.com/gsi-upm/Sefarad) prepared for this project (Warning: the UI is in Spanish). You should see a list with the annotated tweets saved in the LMF server and two widgets. Now you can add more widgets and select what data will appear in them. Recommended widgets: 
+	- Bar charts, modified to work as a histogram of polarity value ranges.  Field: *polarityValue*.
+	- Line chart as historic of number of tweets per hour. Field: *lmf.created*.
+	- Pie chart with sentiments. Field: *hasPolarity*.
+	- Filters for sentiments and topics.
+
 
 ## Thanks to
 
@@ -57,6 +64,7 @@ The first time you will need to train the analyzer. The quality of the semantic 
 - [Loughran and McDonald Financial Sentiment Dictionaries](http://www.nd.edu/~mcdonald/Word_Lists.html)
 - [SentiWordNet](http://sentiwordnet.isti.cnr.it/).
 - Christopher Potts for [SentiWordNet Python inferface](http://compprag.christopherpotts.net/wordnet.html#sentiwordnet).
+- Roberto Bermejo for [Sefarad](https://github.com/gsi-upm/Sefarad).
 
 ## License
 
