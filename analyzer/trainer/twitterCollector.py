@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import tweetstream 
 import time
 import Queue
 import threading
@@ -7,18 +6,21 @@ import cPickle
 import os
 import sys
 from datetime import datetime
-import tweetstream
 sys.path.append('../')
-import auth
+import authCredentials
 import conf
+import tweepy
 
 class StreamCollector(threading.Thread):
 
     words = conf.TRAINER_COLLECTOR_WORDS
-    twitterUser = auth.TWITTER_USERNAME
-    twitterPass = auth.TWITTER_PASSWORD
-    limit = 1000000
-    count = 0;
+    consumer_key = authCredentials.consumer_key;
+    consumer_secret = authCredentials.consumer_secret
+    access_token= authCredentials.access_token
+    access_token_secret= authCredentials.access_token_secret
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+
 
     def __init__(self, tweetsQueue, stop_event):
         threading.Thread.__init__(self)  
@@ -29,19 +31,9 @@ class StreamCollector(threading.Thread):
 
 
     def collect(self):
-        with tweetstream.FilterStream(self.twitterUser, self.twitterPass, track=self.words) as stream:
-        #with tweetstream.SampleStream(self.twitterUser, self.twitterPass) as stream:
-            for tweet in stream:
-                #print tweet.get('text')
-                if self.count and self.count % 10 == 0:
-                    print "done with %d tweets in %s" % (self.count,datetime.now())
-                if (self.count >= self.limit):
-                    raise Exception('done');
-                if tweet.get('text'):
-                    if 'rt' in tweet.get('text').lower():
-                        continue
-                self.queue.put(tweet)
-                self.count += 1
+        streamer = tweepy.Stream(auth=self.auth, listener=StreamListener(self.queue, self.stop_event), timeout=3000000000 )
+        streamer.filter(None,self.words)
+            
 
     def run(self):
         while True:
@@ -49,9 +41,39 @@ class StreamCollector(threading.Thread):
                 self.collect()
             except Exception, e:
                 print e
-                if self.count >= self.limit:
-                    self.stop_event.set()
-                    break
+                #if self.count >= self.limit:
+                #    self.stop_event.set()
+                #    break
+
+
+class StreamListener(tweepy.StreamListener):
+    count = 0;
+    limit = 1000000
+
+    def __init__(self, tweetsQueue, stop_event):
+        super(StreamListener, self).__init__()
+        self.queue = tweetsQueue
+        self.stop_event = stop_event
+
+
+    def on_status(self, status):
+        try:
+           
+            if self.count and self.count % 10 == 0:
+                print "done with %d tweets in %s" % (self.count,datetime.now())
+            if (self.count >= self.limit):
+                raise Exception('done');
+            if status.text:
+                if 'rt' not in status.text.lower():
+                    print str(status.text) + "\n"
+                    self.queue.put(status)
+                    self.count += 1
+
+        except Exception, e:
+            # Catch any unicode errors while printing to console
+            # and just ignore them to avoid breaking application.
+            pass
+
             
 
 class StreamWriter(threading.Thread):

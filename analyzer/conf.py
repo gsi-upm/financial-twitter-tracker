@@ -1,6 +1,7 @@
 # TRAINER
 # words to search in twitter while training
-TRAINER_COLLECTOR_WORDS = ["SP500", "forex",  "DowJones", "dow jones", "stocks market", "stocks finance"]
+#TRAINER_COLLECTOR_WORDS = ["SP500", "forex",  "DowJones", "dow jones", "stocks market", "stocks finance"]
+TRAINER_COLLECTOR_WORDS = ["crash", "rise", "stocks"]
 # name of the sentiwordnet file under /dict/sentiwordnet
 SENTIWORDNET_DICT_FILENAME = "SentiWordNet_3.0.0_20100705.txt"
 # if use the sentiwordnet dictionary (not included, more info in the README) or the simpler and included words list

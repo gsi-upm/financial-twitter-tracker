@@ -187,7 +187,7 @@ class RawClassifier(object):
                 continue
             
             if tweet:
-                text = unicode(tweet.get('text'))
+                text = unicode(tweet.text)
                 
                 if text.lower().find('rt ') != -1:
                     print 'rt'

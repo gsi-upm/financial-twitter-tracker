@@ -12,8 +12,9 @@ import dictionary
 import requests
 # sys.path.append('../')
 import nltk
-import auth
+import authCredentials
 import conf
+import tweepy
 
 #SERVER = "http://lab.gsi.dit.upm.es/episteme/tomcat/LMF/import/upload"
 #SERVER = "http://localhost:8080/LMF/import/upload"
@@ -26,31 +27,67 @@ MCC = MoodClassifierTCPClient('127.0.0.1',6666)
 
 
 class StreamCollector(threading.Thread):
-	""" Limit """
-	limit = conf.ANALYZER_LIMIT
-	""" Twitter user/pass"""
-	twitterUser = auth.TWITTER_USERNAME
-	twitterPass = auth.TWITTER_PASSWORD
 
-	def __init__(self, tweetsQueue, words):
-		threading.Thread.__init__(self)  
-		self.queue = tweetsQueue
-		self.words = words
-		self.count = 0
+    words = conf.TRAINER_COLLECTOR_WORDS
+    consumer_key = authCredentials.consumer_key;
+    consumer_secret = authCredentials.consumer_secret
+    access_token= authCredentials.access_token
+    access_token_secret= authCredentials.access_token_secret
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
 
 
-	def run(self):
-		with tweetstream.FilterStream(self.twitterUser, self.twitterPass, track=self.words) as stream:
-			for tweet in stream:
-				if tweet.get('text'):
-					if 'rt' in tweet.get('text').lower():
-						continue
-					#print tweet
-					self.queue.put(tweet)
-					self.count += 1
-					if (self.limit >= 0): 
-						if (self.count >= self.limit):
-							break
+    def __init__(self, tweetsQueue, stop_event):
+        threading.Thread.__init__(self)  
+        self.queue = tweetsQueue
+        self.stop_event = stop_event
+        self.count = 0
+        self.start_t = time.time()
+
+
+    def collect(self):
+        streamer = tweepy.Stream(auth=self.auth, listener=StreamListener(self.queue, self.stop_event), timeout=3000000000 )
+        streamer.filter(None,self.words)
+            
+
+    def run(self):
+        while True:
+            try:
+                self.collect()
+            except Exception, e:
+                print e
+                #if self.count >= self.limit:
+                #    self.stop_event.set()
+                #    break
+
+
+class StreamListener(tweepy.StreamListener):
+    count = 0;
+    limit = 1000000
+
+    def __init__(self, tweetsQueue, stop_event):
+        super(StreamListener, self).__init__()
+        self.queue = tweetsQueue
+        self.stop_event = stop_event
+
+
+    def on_status(self, status):
+        try:
+  
+            if self.count and self.count % 10 == 0:
+                print "done with %d tweets in %s" % (self.count,datetime.now())
+            if (self.count >= self.limit):
+                raise Exception('done');
+            if status.text:
+                if 'rt' not in status.text.lower():
+                    print status.text + "\n"
+                    self.queue.put(status)
+                    self.count += 1
+
+        except Exception, e:
+            # Catch any unicode errors while printing to console
+            # and just ignore them to avoid breaking application.
+            pass
 
 
 
@@ -70,7 +107,7 @@ class StreamWriter(threading.Thread):
 		while True:
 			tweet = self.queue.get(block=True)
 			cPickle.dump(tweet, self.fileRaw,protocol=1)
-			text = unicode(tweet.get('text'));
+			text = unicode(tweet.text);
 			# tokens = nltk.word_tokenize(text)
 			#TODO more languages
 			# tokens = [w for w in tokens if not w in nltk.corpus.stopwords.words('english')]
@@ -101,20 +138,20 @@ xmlns:sioc="http://rdfs.org/sioc/ns#"
 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 xmlns:marl="http://purl.org/marl/">
 	<rdf:Description rdf:about="https://api.twitter.com/1/statuses/show/"""
-		s += tweet.get('id_str').encode('utf-8')
+		s += tweet.id_str.encode('utf-8')
 		s += """.json">
 		<rdf:type rdf:resource="http://rdfs.org/sioc/types#MicroblogPost"/>
 		<dc:title>"""
 		s += " ".join(words)
 		s += """</dc:title>
 		<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">"""
-		s += tweet.get('created_at').encode('utf-8')
+		s += str(tweet.created_at).encode('utf-8')
 		s += """</dcterms:created>
 		<sioc:has_creator rdf:resource="https://twitter.com/"""
-		s += tweet.get('user').get('screen_name').encode('utf-8')
+		s += tweet.user.screen_name.encode('utf-8')
 		s += """"/>
 		<marl:opinionText>"""
-		s += tweet.get(u'text').encode('utf-8')
+		s += tweet.text.encode('utf-8')
 		s += """</marl:opinionText>
 		<marl:polarityValue>"""
 		s += str(mood[0].get('x_mood'))
