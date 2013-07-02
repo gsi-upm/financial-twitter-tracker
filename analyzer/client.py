@@ -142,7 +142,7 @@ xmlns:marl="http://purl.org/marl/">
 		s += """.json">
 		<rdf:type rdf:resource="http://rdfs.org/sioc/types#MicroblogPost"/>
 		<dc:title>"""
-		s += self.returnTopic(tweet.get(u'text'), words)
+		s += self.returnTopic(tweet.text, words)
 		s += """</dc:title>
 		<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">"""
 		s += str(tweet.created_at).encode('utf-8')

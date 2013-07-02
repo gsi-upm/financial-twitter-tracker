@@ -10,7 +10,7 @@ var configuration = {
 	"widgetsLeft" : [],
 	"widgetsRight" : [],
 	"endpoints" : {
-		"serverURL": "http://localhost:8080/LMF",
+		"serverURL": "http://localhost:8080/LMF/",
 		"baseURL" : [""],
 		"sparql_baseURL" : []
 	},
