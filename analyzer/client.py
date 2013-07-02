@@ -142,7 +142,7 @@ xmlns:marl="http://purl.org/marl/">
 		s += """.json">
 		<rdf:type rdf:resource="http://rdfs.org/sioc/types#MicroblogPost"/>
 		<dc:title>"""
-		s += " ".join(words)
+		s += self.returnTopic(tweet.get(u'text'), words)
 		s += """</dc:title>
 		<dcterms:created rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">"""
 		s += str(tweet.created_at).encode('utf-8')
@@ -170,7 +170,13 @@ xmlns:marl="http://purl.org/marl/">
 </rdf:RDF>"""
 		return s;
 
-
+	def returnTopic(self, text, words):
+		for word in words:
+			if word.lower() in text.lower():
+				return word
+			if ('#' + word.lower()) in text.lower():
+				return word
+		return 'none'
 
 def main():
 	try:

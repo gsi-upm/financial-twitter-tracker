@@ -2,18 +2,20 @@
 //"serverURL": "http://shannon.gsi.dit.upm.es/episteme/lmf/",
 //"serverURL": "http://lab.gsi.dit.upm.es/episteme/tomcat/LMF/",
 //		"serverURL": "http://127.0.0.1:8080/LMF-2.6.0/",
+// 	"lmfUrl" : "http://localhost:8080/LMF-2.6.0/",
+
 
 var configuration = {
-	"lmfUrl" : "http://localhost:8080/LMF-2.6.0/",
+	"lmfUrl" : "http://localhost:8080/LMF/",
 	"widgetsLeft" : [],
 	"widgetsRight" : [],
 	"endpoints" : {
-		"serverURL": "http://localhost:8080/LMF-2.6.0/",
+		"serverURL": "http://localhost:8080/LMF",
 		"baseURL" : [""],
 		"sparql_baseURL" : []
 	},
 	"template" : {
-		"pageTitle" : "Episteme",
+		"pageTitle" : "financial-twitter-tracker",
 		"logoPath": "",
 		"showMapWidget": false,
 		"showResultsWidget": true,
@@ -30,14 +32,14 @@ var configuration = {
 		"resultsGraphs" : [],
 		"resultsLayout" : [
 		{
-			Name: "Títulos",
-			Value: "s"},
+			Name: "Title",
+			Value: "hasPolarity"},
 		{
-			Name: "Subtítulo",
-			Value: "p"},
+			Name: "Subtitle",
+			Value: "polarityValue"},
 		{
-			Name: "Descripción",
-			Value: "o"},
+			Name: "Description",
+			Value: "opinionText"},
 		{
 			Name: "Logo",
 			Value: "photo"},
