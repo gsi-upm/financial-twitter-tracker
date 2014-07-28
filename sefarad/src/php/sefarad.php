@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+	<!-- head starts -->
+	<head>
+		<meta charset="utf-8" />
+		<title>SEFARAD</title>
+		<!-- global stylesheets -->		
+		<link rel="stylesheet" href="../css/main.css" type="text/css">
+		<link rel="stylesheet" href="../css/config.css" type="text/css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script src="../js/ext/knockout-2.1.0.js"></script>
+		<!-- sefarad -->
+		<script type="text/javascript" charset="UTF-8" src="../js/lang.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="../js/default_configuration.js"></script>
+		<!-- on load -->
+		<script type="text/javascript" charset="UTF-8">
+			$(document).ready(function() {
+				ko.applyBindings(m);
+			});
+			
+		</script>  
+	</head>
+	<body>
+		<div class="page-header">
+			<div id="logotext">
+				<img height="100" width="552" src="../img/Logo5.png"/>
+			</div>
+			<h1 data-bind="text: lang().promoheader"></h1>
+		</div>
+		<div class="promo">
+			<ul class="grid">
+				<li class="topic topic-search">
+
+					<h2 >Select your widgets</h2>
+						<ul>
+							<form action="sefaradConf.php" method="post">
+
+								<?php
+							 
+								if ($gestor = opendir('../js/widgets/d3')) {
+								    	 
+								    /* Esta es la forma correcta de iterar sobre el directorio. */
+								    while (false !== ($entrada = readdir($gestor))) {
+								    	if ((strlen($entrada)) > 2){
+								    		$w = substr($entrada, 0, (strlen($entrada)-3));
+								    		echo ('<input type="checkbox" name="widget[]" value="' . $w . '"> ' . ucfirst($w) . '<br>');
+								    	}        
+								    }
+								 
+								    closedir($gestor);
+								}
+
+								?>
+							</br>
+								<input type="submit" value="Download" />
+							</form>
+						</ul>
+					
+					<!-- <a href="index.html#/sparql/universitiesDemo">
+						<span class="icon-topic">&nbsp;</span>
+						<h2 data-bind="text: lang().demo1a"></h2>
+						<ul>
+							<li><b><span data-bind="text: lang().demo1b"></span></b>
+							</li>
+							<li data-bind="text: lang().demo1c">
+							</li>
+							<li data-bind="text: lang().demo1d">
+							</li>
+							<li data-bind="text: lang().demo1e">
+							</li>
+						</ul>
+						<span class="btn-view-all maia-button maia-button-secondary" data-bind="text: lang().demo1f"></span>
+					</a> -->
+				</li>
+				<li class="topic topic-search">
+					<!-- <a href="index.html">
+						<span class="icon-topic">&nbsp;</span>
+						<h2 data-bind="text: lang().demo3a">
+						</h2>
+					</br></br>
+						<ul>
+							<li><b><span data-bind="text: lang().demo3b"></span></b>
+							</li>
+							<li data-bind="text: lang().demo3c">
+							</li>
+							<li data-bind="text: lang().demo3d">
+							</li>
+							<li data-bind="text: lang().demo3e">
+							</li>
+						</ul>
+						<span class="btn-view-all maia-button maia-button-secondary" data-bind="text: lang().demo3f"></span>
+					</a> -->
+				</li>
+				<li class="topic topic-search">
+					<!-- <a href="https://github.com/gsi-upm/Sefarad/wiki">
+						<span class="icon-topic">&nbsp;</span>
+						<h2 data-bind="text: lang().demo2a">
+						</h2>
+						<ul>
+							<li data-bind="text: lang().demo2c">
+							</li>
+							<li data-bind="text: lang().demo2d">
+							</li>
+						</ul>
+						<span class="btn-view-all maia-button maia-button-secondary" data-bind="text: lang().demo2e"></span>
+					</a> -->
+				</li>
+			</ul>
+		</div>
+		<div class="footer">
+			<hr>
+			<select id="lang" data-bind="options: languages, value: selectedLanguage, optionsCaption: lang().langcaption"></select>
+		</div>
+		<script type='text/javascript' charset="UTF-8" >
+			function InitModel() {
+
+				var self = this;
+				
+				self.lang = ko.observable(languages[1]);
+				self.selectedLanguage = ko.observable(languages[1].lang);
+
+				/** Language related functions */
+				self.languages = ko.computed(function () {
+					var response = new Array();
+					for(var i=0, l = languages.length; i<l; i++){
+						response.push(languages[i].lang);	
+					}	
+					return response;
+				});
+				
+				self.selectedLanguageIndex = ko.dependentObservable(function() {
+					return self.languages().indexOf(self.selectedLanguage());
+				}, self);
+				
+				/** Subscribe to changes on language's select */
+				self.selectedLanguage.subscribe(function (newValue) {
+					var idx = self.selectedLanguageIndex();
+					
+					if(idx>-1){
+						self.lang(languages[parseInt(idx)]);
+						}else{
+					}		
+				});
+			}
+			var m = new InitModel();
+		</script>
+	</body>
+</html>

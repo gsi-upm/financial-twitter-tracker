@@ -1,0 +1,332 @@
+<!-- Different templates -->
+		<script id="widgets-template" type="text/html">
+			<div class="item" data-bind="sortableItem: { item: $data, parentList: $item.parentList }">
+			<!-- Widgets with own configuration first -->
+			
+			<!-- Results Widget -->
+			{{if type()=="resultswidget"}}
+			<div class="ui-widget">
+				<div class="ui-widget-header">
+					<div style="float:left">
+						<div class="ui-icon" data-bind="css: 
+							{'ui-icon-arrow-1-s': collapsed(), 'ui-icon-arrow-1-n': !collapsed()}, click: $root.collapseWidget"></div>
+					</div>
+					<h3><a href="#" data-bind="text: title, click: function() { $root.editTitle($data); }, visible: $data !== 
+						$root.editingTitle()"></a></h3>
+					<input data-bind="value: title, visibleAndSelect: $data === $root.editingTitle(), event: { 
+						blur: function() { $root.editTitle(''); } }"/>
+					<div style="display:inline-block; float: right;">
+						<div style="float: right;" 
+							class="ui-icon ui-icon-trash" data-bind="click: $root.deleteWidget.bind($data, id(), type()), visible: 
+							$root.adminMode"></div>
+						<div class="ui-icon ui-icon-gear" style="float: right;" data-bind="visible: $root.adminMode, click: 
+							function(){showWidgetConfiguration(!showWidgetConfiguration());}"></div>
+					</div>
+				</div>
+				<div class="ui-widget-content" data-bind="visible: !collapsed()">
+				<div class="widget-configuration" data-bind="fadeVisible: showWidgetConfiguration">
+					<div data-bind="template: { name: 'results-layout', foreach: $root.resultsLayout }"></div>
+				</div>
+				<div class="resultswidget-header">
+					<div>
+						<select id="pager-perPage" data-bind="value: $root.num_shown">
+						    <option value=10>10</option>
+	      					<option value=20>20</option>
+	        				<option value=30>30</option>
+	        				<option value=40>40</option>
+	      					<option value=50>50</option>
+	      					<option data-bind="value: $root.filteredData().length">All</option>  					
+						</select>
+						<label alt="Per page" data-bind="text:$root.lang().perPage"></label>
+
+						{{if $root.sparql()}}
+						<div id="pager-header">
+							<span data-bind="text: $root.resultsSparqlText" alt=""></span>
+						</div>
+						<div>
+							<ul id="pager">
+								<a href="#" data-bind="click: $root.showLessSPARQL ">← Prev</a>
+								<a href="#" data-bind="click: $root.showMoreSPARQL ">Next →</a>
+							</ul>
+						</div>
+
+						{{else}}
+						<div id="pager-header"></div>
+						<ul id="pager"></ul>
+
+						{{/if}}
+					</div>
+					<br>
+					<h2 data-bind="visible: $root.anyActiveFilter(), text: $root.lang().activefilters"></h2>
+					<h2 data-bind="visible: !$root.anyActiveFilter(), text: $root.lang().notActiveFilters"></h2>
+					<div data-bind="template: { name: 'list-active-filter', foreach: $root.activeWidgets } " ></div>
+					<a href="#" class="tag" data-bind="text: $root.filter, click: function() { $root.filter(''); }, visible: $root.filter()!=''"></a>
+					<br>
+				</div>
+				
+				{{if $root.sparql()}}
+
+					<div id="alertmsg" class="alertmsg-yellow" data-bind="visible: $root.filteredData().length == 0"><span data-bind="text: $root.lang().nodata"></span></div>
+					<div id="resultados">
+						<div class="resultado" data-bind="visible: $root.filteredData().length > 0, template: { name: 
+						'results-sparql', foreach: $root.shownSparqlData, afterRender: $root.animateResultsChange }">
+						</div>
+					</div>									
+					
+				{{else}}
+				
+					<div id="alertmsg" class="alertmsg-yellow" data-bind="visible: $root.filteredData().length == 0"><span data-bind="text: $root.lang().nodata"></span></div>	
+				
+					{{if layout()=="grid"}}
+						<ul id="contenedorr" data-bind="template: { name: 'cards', foreach: $root.filteredData, afterAdd: 
+						$root.serviceAdded }, jqIsotope: $root.isotope">
+						</ul>
+					{{/if}}
+						
+					{{if layout()=="vertical"}}
+							<div class="resultados" data-bind="visible: $root.filteredData().length > 0, template: { name: 
+						'simple', foreach: $root.shownData, afterRender: $root.animateResultsChange }">
+							</div>
+					{{/if}}	
+				{{/if}}		
+			<!--se cierra widget-content-->
+			</div>
+			
+			</div>
+			
+			<!-- Results stats widget -->
+			{{else type()=="resultstats"}}
+			
+			<li class="ui-widget">
+				<div class="ui-widget-header">
+					<div style="float:left">
+						<div class="ui-icon" data-bind="css: 
+							{'ui-icon-arrow-1-s': collapsed(), 'ui-icon-arrow-1-n': !collapsed()}, click: $root.collapseWidget"></div>
+					</div>
+					<h3><a href="#" 
+						data-bind="text: title, click: function() { $root.editTitle($data); }, visible: $data !== $root.editingTitle()"></a></h3>
+					<input 
+						data-bind="value: title, visibleAndSelect: $data === $root.editingTitle(), event: { blur: function() { $root.editTitle(''); } }"/>
+					<div style="display:inline-block; float: right;">
+						<div style="float: right;" class="ui-icon ui-icon-trash" data-bind="click: 
+							$root.deleteWidget.bind($data, id(), type()), visible: $root.adminMode"></div>
+						<div class="ui-icon ui-icon-gear" id="resultsConfig" style="float: 
+							right;" data-bind="visible: $root.adminMode, click: 
+							function(){showWidgetConfiguration(!showWidgetConfiguration());}"></div>
+					</div>
+				</div>
+				<div class="ui-widget-content" 
+					data-bind="visible: !collapsed()">
+					<div class="widget-configuration" data-bind="fadeVisible: showWidgetConfiguration">
+						<div data-bind="template: { name: 'widget-template-resultsstats', foreach: $root.resultsGraphs }" style="display: 
+							inline"></div>
+					</div>
+					<div class="graphics"></div>
+				</div>
+			</li>
+			
+			<!-- Tagcloud widget -->
+			{{else type()=="tagcloud"}}
+			<li class="ui-widget">
+			<div class="ui-widget-header">
+				<div style="float:left">
+					<div class="ui-icon" data-bind="css: 
+						{'ui-icon-arrow-1-s': collapsed(), 'ui-icon-arrow-1-n': !collapsed()}, click: $root.collapseWidget"></div>
+				</div>
+				<h3><a 
+					href="#" data-bind="text: title, click: function() { $root.editTitle($data); }, visible: $data !== 
+					$root.editingTitle()"></a></h3>
+				<input data-bind="value: title, visibleAndSelect: $data === $root.editingTitle(), event: { 
+					blur: function() { $root.editTitle(''); } }"/>
+				<div style="display:inline-block; float: right;">
+					<div style="float: right;" 
+						class="ui-icon ui-icon-trash" data-bind="click: $root.deleteWidget.bind($data, id(), type()), visible: 
+						$root.adminMode"></div>
+					<div class="ui-icon ui-icon-gear" style="float: right;" data-bind="visible: $root.adminMode, click: 
+						function(){showWidgetConfiguration(!showWidgetConfiguration());}"></div>
+				</div>
+			</div>
+			<div class="ui-widget-content" 
+				data-bind="visible: !collapsed()">
+			
+			{{if layout()=="vertical"}}
+				<div class="widget-configuration" data-bind="fadeVisible: showWidgetConfiguration">
+					<p>Estilo del Widget</p>
+					<img height="32px" width="32px" src="img/tag_icon.png" data-bind="click: $root.switchLayout"/>
+					<img height="32px" width="32px" class="activo" src="img/list_icon.png"/>
+				</div>
+				<ul data-bind="kendoPanelBar: { }">
+					<li>
+						<span class="filterName" data-bind="text: title()"></span>	
+						<ul data-bind="template: {name: 'widget-template-panelbar', foreach: $data.values }"></ul>
+					</li>
+				</ul>
+			{{else}}
+				<div class="widget-configuration" data-bind="fadeVisible: showWidgetConfiguration">
+					<p>Estilo del Widget</p>
+					<img height="32px" width="32px" class="activo" src="img/tag_icon.png"/>
+					<img height="32px" width="32px" src="img/list_icon.png" data-bind="click: $root.switchLayout"/>
+				</div>	
+				
+				<div class="tagarea"><div data-bind="template: { name: 'widget-template-tagcloud', templateOptions: {parent_id: id 
+					},foreach: values }"></div></div>			
+			{{/if}}
+			
+			<!-- Other widget -->
+			{{else}}
+				<li class="ui-widget">
+					<div class="ui-widget-header">
+						<div style="float:left">
+							<div class="ui-icon" data-bind="css: 
+								{'ui-icon-arrow-1-s': collapsed(), 'ui-icon-arrow-1-n': !collapsed()}, click: $root.collapseWidget">
+							</div>
+						</div>
+						<h3><a 
+							href="#" data-bind="text: title, click: function() { $root.editTitle($data); }, visible: $data !== 
+							$root.editingTitle()"></a></h3>
+						<input data-bind="value: title, visibleAndSelect: $data === $root.editingTitle(), event: { 
+							blur: function() { $root.editTitle(''); } }"/>
+						<div class="ui-icon ui-icon-trash" style="float:right" data-bind="click: 
+								$root.deleteWidget.bind($data, id(), type()), visible: $root.adminMode"></div>
+						<div class="ui-icon ui-icon-help" style="float:right" data-bind="visible: $root.adminMode, click: 
+							function(){showWidgetHelp(!showWidgetHelp());}"></div>
+					</div>
+
+					<div class="ui-widget-content" data-bind="visible: !collapsed()">
+
+						<div class="widget-help" data-bind="fadeVisible: showWidgetHelp">
+							<div class="help_en" data-bind="text: help_en"></div>
+							<div class="help_es" data-bind="text: help_es"></div>
+						</div>
+
+						<!-- Slider widget -->
+						{{if type()=="slider"}}
+						<div class="slider"></br><span>Rango filtrado: </span><span data-bind="text: values"></span><div data-bind="slider: $data, 
+							sliderOptions: {min: $data.limits()[0], max: $data.limits()[1], values: $data.values(), step: $data.value()}"></div></br></div>
+						
+						<!-- Radial gauge widget -->
+						{{else type()=="radialgauge"}}
+						<div id="gauge-container"><div id="gauge" data-bind="kendoRadialGauge: {value: $root.numberOfResults, scale: { max: 
+							$root.getMaxNumberOfResults(), labels: { visible: true }, majorUnit: $root.getGaugeMajorUnits() } } "></div><div 
+							id="contador"><p data-bind="text: $root.numberOfResults"></p></div></div>	
+						
+						<!-- Twitter widget -->
+						{{else type()=="twitter"}}
+						
+						{{if currentTweets().length > 0 }}
+						<table width='100%' data-bind="template: { name: 'widget-template-twitter', foreach: currentTweets }"></table>
+						
+						{{else}}
+						<p>No se han podido obtener resultados</p>
+						{{/if}}
+						
+						<!-- Rest widget -->
+						{{else type()=="piechart"}}
+						<div data-bind="attr: {'id': id }"></div>
+						{{else type()=="barchart"}}
+						<div data-bind="attr: {'id': id }"></div>
+						{{else type()=="barchartD3"}}
+						<div data-bind="attr: {'id': id }"></div>
+						{{else type()=="sgvizler"}}
+						<div data-bind="attr: { 'id': id }"></div>
+						{{else}}
+						<div data-bind="attr: { 'id': id }"></div>
+						{{/if}}
+					</div>
+				</li>
+			
+			{{/if}}
+			</div>
+			
+			
+		</script>	
+		<script id="widget-template-tagcloud" type="text/html">
+			<a href='#' class="tag" data-bind="click: $root.tagCloudSelection.bind($data, $parent.id(), id, name()), css: { selected: 
+			state()}"><span data-bind="text: name"></span><span class="count" data-bind="css: {'zero': count()=='0' }, text: count"></span></a>
+		</script>	
+		<script id="widget-template-panelbar" type="text/html">
+			<li class="k-item k-state-default">
+			    <a class="filter k-link" href="#" data-bind="text: $root.getTagcloudItem(name(), count()),
+			    click: $root.tagCloudSelection.bind($data, $parent.id(), id, name()),
+			    css: { 'panelselected': state() == true}"></a>
+			</li>	
+		</script>		
+		<script id="widget-template-resultsstats" type="text/html">
+			<input type="checkbox" data-bind="checked: state" />
+			<label data-bind="text: type"></label>	
+		</script>		
+		<script id="widget-template-twitter" type="text/html">
+			<tr><td><img data-bind='attr: { src: profile_image_url }' /></td><td><a class='twitterUser' data-bind='attr: { href: 
+			"http://twitter.com/" + from_user }, text: from_user' href='http://twitter.com/${ from_user }' > </a><p data-bind="text: text"> 
+			</p><div class='tweetInfo' data-bind='text: created_at'> </div></td></tr>
+		</script>
+		<script id="list-active-filter" type="text/html">
+			{{if type()=="tagcloud"}} 
+				<span data-bind="template: { name: 'active-filter', foreach: values, afterRender: $root.animateTagsChange } " > 
+				</span>
+			{{/if}}
+		</script>
+		<script id="active-filter" type="text/html">
+			<div data-bind="visible: state()" style="display: inline;">
+				<div style="display: inline;">
+					<a href="#" class="tag" data-bind="text: name, click: $root.tagCloudSelection.bind($data, $parent.id(), id, name())"></a>
+				</div>
+			</div>
+		</script>
+		<script id="results-layout" type="text/html">
+			<p data-bind="text: Name"></p>
+			<input data-bind="value: Value"/>
+		</script>
+		<script type="text/html" id="cards">
+			<li class="result_box">
+				<img id="logoimage" data-bind="attr: {src: $data[$root.resultsLayout()[3].Value()]}" />
+				<div class="name">
+					<h2 data-bind="text: $data[$root.resultsLayout()[0].Value()]"></h2>
+				</div>
+				<h4 class="description" data-bind="text: $data[$root.resultsLayout()[1].Value()]"></h4>
+				<p data-bind="text: $data[$root.resultsLayout()[2].Value()]"></p> 
+			</li>
+		</script>			
+		<script type="text/html" id="simple">	
+			<div class="resultado">
+				<div class="image">
+					<img id="logoimage" data-bind="attr: {src: $data[$root.resultsLayout()[3].Value()]}" />
+				</div>
+				<div class="info">
+					<h2 data-bind="text: $data[$root.resultsLayout()[0].Value()]"></h2>
+					<h4 data-bind="text: $data[$root.resultsLayout()[1].Value()]"></h4>
+					<p data-bind="text: $data[$root.resultsLayout()[2].Value()]"></p>
+				</div>
+			</div>
+		</script>			
+		<script type="text/html" id="results-sparql">
+			{{if $data.hasOwnProperty([$root.resultsLayout()[3].Value()])}}
+				<img src="" alt="logo" data-bind="attr: {src: $data[$root.resultsLayout()[3].Value()].value}" />	
+			{{/if}}
+			{{if $data.hasOwnProperty([$root.resultsLayout()[0].Value()])}}
+				<h2 data-bind="text: $data[$root.resultsLayout()[0].Value()].value"></h2>
+			{{/if}}
+			{{if $data.hasOwnProperty([$root.resultsLayout()[1].Value()])}}
+				<h4 data-bind="text: $data[$root.resultsLayout()[1].Value()].value"></h4>
+			{{/if}}
+			{{if $data.hasOwnProperty([$root.resultsLayout()[2].Value()])}}
+				<p data-bind="text: $data[$root.resultsLayout()[2].Value()].value"></p>
+			{{/if}}
+			<hr>
+		</script>
+		<script type="text/html" id="new-widgets-template">
+			<div data-bind="attr: { 'class': $root.widgetCategory($data.cat) }">
+				<h1 data-bind="text: $data.name"></h1>
+				<table id="wrapper">
+					<tr>
+						<td><img data-bind="attr:{src: $data.img}" alt="Widget"/></td>
+					</tr>
+				</table>
+				<div class="mask">
+					<h2 data-bind="text: $data.name"></h2>
+					<p data-bind="text: $data.description"></p>
+					<a href="#" data-bind="click: $data.render"><button class="button">Añadir</button></a>
+				</div>
+			</div>
+		</script>
+		<!-- end templates -->

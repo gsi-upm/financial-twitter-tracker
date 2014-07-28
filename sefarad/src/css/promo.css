@@ -1,0 +1,226 @@
+body {
+font-size:.8em;
+font-family:Arial,Verdana,Sans-Serif;
+background:url('../img/noise.png');
+}
+
+.page-header h1 {
+padding-top:20px;
+color:#00a1d8;
+}
+
+.footer {
+max-width:978px;
+margin:auto;
+}
+
+.footer select {
+float:right;
+}
+
+.promo {
+max-width:978px;
+margin:auto;
+}
+
+.promo a {
+text-decoration:none;
+}
+
+.topic-looking-for .icon {
+background-position:-16px -57px;
+width:48px;
+}
+
+.topic-trip .icon {
+background-position:-145px -118px;
+width:44px;
+}
+
+.topic-culinary .icon {
+background-position:-328px -58px;
+}
+
+.topic-current-events .icon {
+background-position:-200px -118px;
+width:56px;
+}
+
+.topic-gift .icon {
+background-position:-262px -55px;
+width:60px;
+}
+
+.topic-ace-class .icon {
+background-position:-74px -58px;
+width:54px;
+}
+
+.topic-date .icon {
+background-position:-134px -58px;
+}
+
+.topic-win-bet .icon {
+background-position:-6px -118px;
+width:62px;
+}
+
+.topic-sports .icon {
+background-position:-266px -120px;
+width:56px;
+}
+
+.topic-missed-alarm .icon {
+background-position:-202px -58px;
+width:54px;
+}
+
+.topic-search .icon {
+background-position:-76px -119px;
+width:54px;
+}
+
+.topic-mobile .icon {
+background-position:-335px -120px;
+width:52px;
+}
+
+.grid{list-style:none;margin:0 0 0 0;overflow:hidden;padding:0 24px 34px 54px}[dir="rtl"] 
+.grid{margin:0;padding:0 54px 34px 24px}
+.grid .topic{border:1px dotted #868686;display:block;float:left;margin:28px 30px 0 0;height:338px;width:268px;background:#fff;background:-moz-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-o-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fff 0%),color-stop(1,#f5f5f5 100%));filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr=#fff 0%, EndColorStr=#f5f5f5 100%)";background:linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-moz-linear-gradient(#fff,#f5f5f5);background:-o-linear-gradient(#fff,#f5f5f5);background:-webkit-linear-gradient(#fff,#f5f5f5);background:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fff),color-stop(1,#f5f5f5));filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr=#fff, EndColorStr=#f5f5f5)";background:linear-gradient(#fff,#f5f5f5);background:-moz-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-o-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fff 0%),color-stop(1,#f5f5f5 100%));filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr=#fff 0%, EndColorStr=#f5f5f5 100%)";background:linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-moz-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-o-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fff 0%),color-stop(1,#f5f5f5 100%));filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr=#fff 0%, EndColorStr=#f5f5f5 100%)";background:linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-moz-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-o-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fff 0%),color-stop(1,#f5f5f5 100%));filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr=#fff 0%, EndColorStr=#f5f5f5 100%)";background:linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-moz-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-o-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-linear-gradient(top,#fff 0%,#f5f5f5 100%);background:-webkit-gradient(linear,left top,left bottom,color-stop(0,#fff 0%),color-stop(1,#f5f5f5 100%));filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr=#fff 0%, EndColorStr=#f5f5f5 100%)";background:linear-gradient(top,#fff 0%,#f5f5f5 100%)}[dir="rtl"]
+.grid .topic{float:right;margin:28px 0 0 30px}
+.grid a{display:block;height:272px;overflow:hidden;padding:30px 32px 36px 32px;position:relative;width:204px}
+.grid h2{color:#333;font-size:24px;font-weight:300;line-height:1.3;margin:0 0 24px 0}
+.grid ul{color:#666;font:13px "open sans",arial,sans-serif;list-style:none;margin:0 0 37px 0;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";filter:alpha(opacity=100);opacity:1;padding:0;-moz-transition:all 300ms ease-out;-o-transition:all 300ms ease-out;-webkit-transition:all 300ms ease-out;transition:all 300ms ease-out}
+
+.grid ul li {
+margin:0 0 8px;
+}
+
+.icon-topic {
+background:transparent url(http://www.google.com/insidesearch/images/tipstricks/icons.png) 0 -50px no-repeat;
+display:block;
+height:64px;
+margin:-93px 0 24px;
+overflow:hidden;
+text-indent:-9999em;
+width:64px;
+-moz-transition:margin-top 300ms ease-out;
+-o-transition:margin-top 300ms ease-out;
+-webkit-transition:margin-top 300ms ease-out;
+transition:margin-top 300ms ease-out;
+}
+
+.topic-looking-for .icon-topic {
+background-position:-16px -47px;
+width:48px;
+}
+
+.topic-trip .icon-topic {
+background-position:-145px -106px;
+width:48px;
+}
+
+.topic-culinary .icon-topic {
+background-position:-328px -39px;
+}
+
+.topic-current-events .icon-topic {
+background-position:-200px -107px;
+}
+
+.topic-gift .icon-topic {
+background-position:-262px -42px;
+}
+
+.topic-ace-class .icon-topic {
+background-position:-74px -45px;
+width:54px;
+}
+
+.topic-date .icon-topic {
+background-position:-134px -43px;
+}
+
+.topic-win-bet .icon-topic {
+background-position:-6px -109px;
+}
+
+.topic-sports .icon-topic {
+background-position:-266px -106px;
+}
+
+.topic-missed-alarm .icon-topic {
+background-position:-202px -41px;
+width:54px;
+}
+
+.topic-search .icon-topic {
+background-position:-76px -108px;
+}
+
+.topic-mobile .icon-topic {
+background-position:-335px -109px;
+}
+
+.btn-view-all {
+-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+filter:alpha(opacity=0);
+opacity:0;
+position:absolute;
+left:32px;
+bottom:32px;
+visibility:hidden;
+-moz-transition:opacity 300ms ease-out 200ms;
+-o-transition:opacity 300ms ease-out 200ms;
+-webkit-transition:opacity 300ms ease-out 200ms;
+transition:opacity 300ms ease-out 200ms;
+}
+
+[dir=rtl]
+.btn-view-all {
+right:32px;
+}
+
+.maia-button.maia-button-secondary:hover,.maia-button.maia-button-secondary:focus {
+background-color:#facb47;
+border-color:#000;
+}
+
+.maia-button.maia-button-secondary {
+background-color:#facb47;
+border:1px solid #fff;
+color:#fff;
+font-weight:700;
+padding:6px 11px;
+}
+
+.grid .topic:hover .icon-more,.grid .topic:hover ul,.grid .topic a:focus .icon-more,.grid .topic a:focus ul {
+-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+filter:alpha(opacity=0);
+opacity:0;
+visibility:hidden;
+}
+
+.grid .topic:hover .icon-topic,.grid .topic a:focus .icon-topic {
+margin-top:-10px;
+}
+
+.grid .topic:hover .btn-view-all,.grid .topic a:focus .btn-view-all {
+-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+filter:alpha(opacity=100);
+opacity:1;
+visibility:visible;
+-moz-transition-delay:0;
+-o-transition-delay:0;
+-webkit-transition-delay:0;
+transition-delay:0;
+}
+
+.grid a:hover,.grid a:active,.grid a:focus {
+text-decoration:none;
+}
+
+.grid a:hover h2,.grid a:focus h2 {
+color:#4386fc;
+}
