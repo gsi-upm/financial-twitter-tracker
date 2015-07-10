@@ -1,0 +1,235 @@
+{
+    "_id": {
+        "$oid": "53b024224ad13caa148b4567"
+    }, 
+    "autocomplete": {
+        "actived": true, 
+        "field": ""
+    }, 
+    "endpoints": {
+        "baseURL": [
+            ""
+        ], 
+        "serverURL": "http://localhost:8080/LMF/", 
+        "sparql_baseURL": []
+    }, 
+    "name": "default_configuration", 
+    "other": {
+        "available_languages": [
+            "Espa\u00f1ol", 
+            "English"
+        ], 
+        "default_language": "Espa\u00f1ol", 
+        "lightmode": false, 
+        "maxNumberOfResults": {
+            "$numberLong": "1642"
+        }, 
+        "showMap": true, 
+        "sort": {
+            "field": "name", 
+            "order": "asc"
+        }
+    }, 
+    "results": {
+        "extra": [], 
+        "resultsGraphs": [], 
+        "resultsLayout": [
+            {
+                "Name": "T\u00edtulos", 
+                "Value": "opinionText"
+            }, 
+            {
+                "Name": "Subt\u00edtulo", 
+                "Value": "entity"
+            }, 
+            {
+                "Name": "Descripci\u00f3n", 
+                "Value": "polarityValue"
+            }, 
+            {
+                "Name": "Logo", 
+                "Value": "photo"
+            }
+        ], 
+        "wcollapsed": false, 
+        "wcolor": "color-red", 
+        "wgraphscollapsed": false, 
+        "wshowConfig": false, 
+        "wtitle": "Resultados", 
+        "wtype": "results"
+    }, 
+    "searchengine": [], 
+    "sortable_widgets": {
+        "actived": false
+    }, 
+    "template": {
+        "language": "English", 
+        "logoPath": "", 
+        "pageTitle": "Financial Twitter Tracker", 
+        "showResultsWidget": false
+    }, 
+    "widgetsLeft": [
+        {
+            "collapsed": false, 
+            "id": {
+                "$numberLong": "7019"
+            }, 
+            "layout": "vertical", 
+            "showWidgetConfiguration": false, 
+            "title": "Resultados", 
+            "type": "resultswidget"
+        }
+    ], 
+    "widgetsLeftTab1": [
+        {
+            "collapsed": false, 
+            "help_en": "Help", 
+            "help_es": "Ayuda", 
+            "id": {
+                "$numberLong": "8531"
+            }, 
+            "query": "SELECT ?p (COUNT(?p) as ?pCount)\nWHERE\n{\n  ?s <http://purl.org/dc/terms/entity> ?p .\n}\nGROUP BY ?p", 
+            "showWidgetHelp": false, 
+            "title": "Entity Percentage", 
+            "type": "sgvizler", 
+            "value": "google.visualization.PieChart"
+        }
+    ], 
+    "widgetsRight": [
+        {
+            "collapsed": false, 
+            "field": "entity", 
+            "id": {
+                "$numberLong": "1729"
+            }, 
+            "layout": "horizontal", 
+            "showWidgetConfiguration": false, 
+            "title": "Entities", 
+            "type": "tagcloud", 
+            "values": [
+                {
+                    "count": {
+                        "$numberLong": "424"
+                    }, 
+                    "id": {
+                        "$numberLong": "0"
+                    }, 
+                    "name": "Vodafone", 
+                    "state": false
+                }, 
+                {
+                    "count": {
+                        "$numberLong": "394"
+                    }, 
+                    "id": {
+                        "$numberLong": "1"
+                    }, 
+                    "name": "Telefonica", 
+                    "state": false
+                }, 
+                {
+                    "count": {
+                        "$numberLong": "379"
+                    }, 
+                    "id": {
+                        "$numberLong": "2"
+                    }, 
+                    "name": "Apple", 
+                    "state": false
+                }, 
+                {
+                    "count": {
+                        "$numberLong": "256"
+                    }, 
+                    "id": {
+                        "$numberLong": "3"
+                    }, 
+                    "name": "Google", 
+                    "state": false
+                }, 
+                {
+                    "count": {
+                        "$numberLong": "88"
+                    }, 
+                    "id": {
+                        "$numberLong": "4"
+                    }, 
+                    "name": "Amazon", 
+                    "state": true
+                }, 
+                {
+                    "count": {
+                        "$numberLong": "54"
+                    }, 
+                    "id": {
+                        "$numberLong": "5"
+                    }, 
+                    "name": "Santander", 
+                    "state": false
+                }, 
+                {
+                    "count": {
+                        "$numberLong": "48"
+                    }, 
+                    "id": {
+                        "$numberLong": "6"
+                    }, 
+                    "name": "Iberdrola", 
+                    "state": false
+                }
+            ]
+        }, 
+        {
+            "collapsed": false, 
+            "currentTweets": "", 
+            "field": "", 
+            "help_en": "Help", 
+            "help_es": "Ayuda", 
+            "id": "B4569", 
+            "layout": "", 
+            "limits": "", 
+            "query": "*:*", 
+            "showWidgetConfiguration": false, 
+            "showWidgetHelp": false, 
+            "title": "Sentiment Widget", 
+            "type": "sentimentWidget", 
+            "value": "", 
+            "values": ""
+        }, 
+        {
+            "collapsed": false, 
+            "currentTweets": "", 
+            "field": "", 
+            "help_en": "Chernoff faces show the sentiment of an entity with a face representation. The anger the face, the worse the sentiment.", 
+            "help_es": "Estas son las caras de Chernoff", 
+            "id": "A7887", 
+            "layout": "", 
+            "limits": "", 
+            "query": "*:*", 
+            "showWidgetConfiguration": false, 
+            "showWidgetHelp": false, 
+            "title": "Chernoff Faces", 
+            "type": "chernoffWidget", 
+            "value": "", 
+            "values": ""
+        }, 
+        {
+            "collapsed": false, 
+            "currentTweets": "", 
+            "field": "", 
+            "help_en": "Wheel representation of the data. Click in the different pieces to focus on it.", 
+            "help_es": "Ayuda", 
+            "id": "W7897", 
+            "layout": "", 
+            "limits": "", 
+            "query": "*:*", 
+            "showWidgetConfiguration": false, 
+            "showWidgetHelp": false, 
+            "title": "Wheel", 
+            "type": "wheelChart", 
+            "value": "", 
+            "values": ""
+        }
+    ], 
+    "widgetsRightTab1": []
+}
